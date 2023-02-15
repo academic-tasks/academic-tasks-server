@@ -1,0 +1,25 @@
+{
+  "name": "@academic-tasks/schemas",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "npm run clear && tsc -p . --watch",
+    "build": "npm run clear && tsc -p .",
+    "clear": "rimraf dist"
+  },
+  "dependencies": {
+    "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1",
+    "typescript": "^4.9.4"
+  },
+  "peerDependencies": {
+    "@casl/ability": "^6.3.3",
+    "zod": "^3.20.2"
+  },
+  "files": [
+    "/dist"
+  ]
+}
