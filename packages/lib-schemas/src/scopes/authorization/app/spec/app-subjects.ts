@@ -1,7 +1,15 @@
 export const appSubjects = [
-  "user",
-  "role",
-  "permission",
-  "project",
   "all",
+  //
+
+  "permissao",
+  "cargo",
+  "usuario",
+
+  "curso",
+  "turma",
+  "professor",
+  "disciplina",
+  "lista",
+  "tarefa",
 ] as const;

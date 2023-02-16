@@ -1,0 +1,20 @@
+services:
+  keycloak:
+    build:
+      context: ./image
+      args:
+        - KEYCLOAK_EXTRA_ARGS=-Dkeycloak.profile.feature.scripts=enabled
+    entrypoint: /opt/keycloak/bin/kc.sh
+    command: start-dev --import-realm
+    container_name: academic-tasks-keycloak
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    networks:
+      - academic-tasks-net
+
+networks:
+  academic-tasks-net:
+    external: true

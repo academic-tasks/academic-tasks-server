@@ -1,8 +1,11 @@
 export const appActions = [
   "manage",
+
   "create",
+
   "read",
+  "list",
+
   "update",
   "delete",
-  "list",
 ] as const;

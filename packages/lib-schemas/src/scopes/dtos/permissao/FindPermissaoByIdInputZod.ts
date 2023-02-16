@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { IdZod } from "../../../utils";
+import { UUIDZod } from "../../../utils";
 
 export const FindPermissaoByIdInputZod = z.object({
-  id: IdZod,
+  id: UUIDZod,
 });
 
 export type IFindPermissaoByIdInput = z.infer<typeof FindPermissaoByIdInputZod>;

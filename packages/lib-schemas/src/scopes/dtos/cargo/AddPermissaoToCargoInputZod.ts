@@ -4,6 +4,7 @@ import { FindCargoByIdInputZod } from "./FindCargoByIdInputZod";
 
 export const AddPermissaoToCargoInputZod = z.object({
   cargoId: FindCargoByIdInputZod.shape.id,
+
   permissaoId: FindPermissaoByIdInputZod.shape.id,
 });
 

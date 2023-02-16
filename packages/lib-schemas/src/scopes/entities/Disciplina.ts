@@ -5,7 +5,7 @@ import { Turma } from "./Turma";
 export type Disciplina = {
   id: string;
 
-  nome: string;
+  name: string;
 
   codSuap: string;
 

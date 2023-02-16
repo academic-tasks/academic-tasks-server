@@ -4,9 +4,9 @@ import { Disciplina } from "./Disciplina";
 export type Turma = {
   id: string;
 
-  nome: string;
+  name: string;
 
-  dataInicio: Date;
+  year: number;
 
   serie: string;
 

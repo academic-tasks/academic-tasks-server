@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { IdZod } from "../../../utils";
+import { UUIDZod } from "../../../utils";
 
 export const FindCargoByIdInputZod = z.object({
-  id: IdZod,
+  id: UUIDZod,
 });
 
 export type IFindCargoByIdInput = z.infer<typeof FindCargoByIdInputZod>;

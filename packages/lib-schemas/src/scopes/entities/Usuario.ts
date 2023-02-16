@@ -7,5 +7,5 @@ export type Usuario = {
 
   //
 
-  memberships: ListaMembro[];
+  listaMembros: ListaMembro[];
 };

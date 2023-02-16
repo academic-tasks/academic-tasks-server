@@ -1,13 +1,14 @@
 export enum AppSubject {
+  PERMISSAO = "permissao",
   CARGO = "cargo",
+  USUARIO = "usuario",
+
   CURSO = "curso",
+  TURMA = "turma",
+  PROFESSOR = "professor",
   DISCIPLINA = "disciplina",
   LISTA = "lista",
-  PERMISSAO = "permissao",
-  PROFESSOR = "professor",
   TAREFA = "tarefa",
-  TURMA = "turma",
-  USUARIO = "usuario",
 
   //
 
