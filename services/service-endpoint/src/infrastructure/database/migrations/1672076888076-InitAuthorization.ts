@@ -60,11 +60,11 @@ export class InitAuthorization1672076888076 implements MigrationInterface {
           },
           {
             name: 'id_cargo_fk',
-            type: 'int',
+            type: 'char(36)',
           },
           {
             name: 'id_permissao_fk',
-            type: 'int',
+            type: 'char(36)',
           },
         ],
         foreignKeys: [

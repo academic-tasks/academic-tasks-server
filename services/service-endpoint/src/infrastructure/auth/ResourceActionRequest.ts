@@ -44,6 +44,7 @@ export class ResourceActionRequest {
   static forUser(userId: IFindUsuarioByIdInput['id'], rules: AppRawRule[]) {
     const resourceActionRequest = new ResourceActionRequest(rules);
     resourceActionRequest.user = { id: userId };
+
     return resourceActionRequest;
   }
 

@@ -57,11 +57,11 @@ export class AuthService {
   }
 
   async getUserResourceActionRequest(userId: string) {
-    const regras = await this.usuarioService.getUsuarioAuthorizationRules(
+    const rules = await this.usuarioService.getUsuarioAuthorizationRules(
       systemResourceActionRequest,
       userId,
     );
 
-    return ResourceActionRequest.forUser(userId, regras);
+    return ResourceActionRequest.forUser(userId, rules);
   }
 }

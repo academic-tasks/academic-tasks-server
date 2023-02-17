@@ -10,9 +10,16 @@ import {
   IUpdateUsuarioInput,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { castArray, omit, pick } from 'lodash';
 import { parralel } from 'src/app/helpers';
+import { KcClient } from 'src/infrastructure/auth/providers/kc-client';
+import { KC_CLIENT } from 'src/infrastructure/consts/KC_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
@@ -29,6 +36,9 @@ import { CargoService } from '../cargo/cargo.service';
 export class UsuarioService {
   constructor(
     private cargoService: CargoService,
+
+    @Inject(KC_CLIENT)
+    private kcClient: KcClient,
 
     @Inject(REPOSITORY_CARGO)
     private cargoRepository: ICargoRepository,
@@ -89,8 +99,17 @@ export class UsuarioService {
 
     const newUsuario = this.usuarioRepository.create();
 
-    UsuarioDbEntity.setupInitialIds(newUsuario);
+    newUsuario.id = keycloakId;
+    // UsuarioDbEntity.setupInitialIds(newUsuario);
+
+    const user = await this.kcClient.users.findOne({ id: keycloakId });
+
+    if (!user) {
+      throw new ForbiddenException();
+    }
+
     newUsuario.keycloakId = keycloakId;
+    newUsuario.username = user.username!;
 
     await this.usuarioRepository.save(newUsuario);
 
@@ -137,21 +156,13 @@ export class UsuarioService {
       usuarioId,
     );
 
-    const dbCargos = await this.cargoRepository
+    const dbCargosQuery = this.cargoRepository
       .createQueryBuilder('cargo')
-      .innerJoin(
-        'cargo.usuarioHasCargos',
-        'usuario_has_cargo',
-        'usuario_has_cargo.id_cargo_fk = cargo.id',
-      )
-      .innerJoin(
-        'usuario_has_cargo.usuario',
-        'usuario',
-        'usuario_has_cargo.id_usuario_fk = usuario.id',
-      )
-      .select(['cargo.id', 'usuario_has_cargo.id', 'usuario.id'])
-      .where('usuario.id = :id', { id: usuario.id })
-      .getMany();
+      .innerJoin('cargo.usuarioHasCargo', 'usuario_has_cargo')
+      .select(['cargo.id'])
+      .where('usuario_has_cargo.id_usuario_fk = :id', { id: usuario.id });
+
+    const dbCargos = await dbCargosQuery.getMany();
 
     const cargos = await parralel(dbCargos, (role) =>
       this.cargoService.findCargoByIdSimple(resourceActionRequest, role.id),

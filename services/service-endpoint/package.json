@@ -27,6 +27,7 @@
   "dependencies": {
     "@academic-tasks/schemas": "file:../../packages/lib-schemas",
     "@casl/ability": "^6.3.3",
+    "@keycloak/keycloak-admin-client": "^20.0.3",
     "@nestjs/apollo": "^10.1.7",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.0.0",

@@ -20,13 +20,13 @@ export class CargoDbEntity implements Cargo {
     () => UsuarioHasCargoDbEntity,
     (usuarioHasCargo) => usuarioHasCargo.cargo,
   )
-  usuarioHasCargos!: UsuarioHasCargoDbEntity[];
+  usuarioHasCargo!: UsuarioHasCargoDbEntity[];
 
   @OneToMany(
     () => CargoHasPermissaoDbEntity,
     (cargoHasPermissao) => cargoHasPermissao.cargo,
   )
-  cargoHasPermissoes!: CargoHasPermissaoDbEntity[];
+  cargoHasPermissao!: CargoHasPermissaoDbEntity[];
 
   //
 

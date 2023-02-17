@@ -149,12 +149,13 @@ export class CargoService {
       cargoId,
     );
 
-    const permissoes = await this.permissaoRepository
+    const permissoesQuery = this.permissaoRepository
       .createQueryBuilder('permissao')
       .innerJoin('permissao.cargoHasPermissao', 'cargo_has_permissao')
-      .select(['permissao.id', 'cargo_has_permissao.id'])
-      .where('cargo_has_permissao.id_cargo_fk = :id', { id: cargo.id })
-      .getMany();
+      .select(['permissao.id'])
+      .where('cargo_has_permissao.id_cargo_fk = :id', { id: cargo.id });
+
+    const permissoes = await permissoesQuery.getMany();
 
     return permissoes;
   }

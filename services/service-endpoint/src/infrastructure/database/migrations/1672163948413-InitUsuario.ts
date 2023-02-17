@@ -49,7 +49,7 @@ export class InitUsuario1672163948413 implements MigrationInterface {
           },
           {
             name: 'id_cargo_fk',
-            type: 'int',
+            type: 'char(36)',
           },
         ],
         foreignKeys: [

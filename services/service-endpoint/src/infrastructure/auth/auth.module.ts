@@ -19,13 +19,24 @@ import { AccessTokenStrategy } from './strategies/access-token.strategy.service'
       provide: APP_GUARD,
       useClass: AuthenticatedGuard,
     },
+
+    //
+    ...oidcClientProviders,
+    //
+
     SessionSerializer,
     AccessTokenStrategy,
-    ...oidcClientProviders,
 
     AuthService,
     AuthResolver,
   ],
-  exports: [...oidcClientProviders, SessionSerializer, AuthService],
+  exports: [
+    //
+    ...oidcClientProviders,
+    //
+
+    SessionSerializer,
+    AuthService,
+  ],
 })
 export class AuthModule {}

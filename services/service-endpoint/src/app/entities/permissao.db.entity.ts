@@ -22,7 +22,7 @@ export class PermissaoDbEntity implements Permissao {
     () => CargoHasPermissaoDbEntity,
     (cargoHasPermissao) => cargoHasPermissao.permissao,
   )
-  cargoHasPermissoes!: CargoHasPermissaoDbEntity[];
+  cargoHasPermissao!: CargoHasPermissaoDbEntity[];
 
   //
 
