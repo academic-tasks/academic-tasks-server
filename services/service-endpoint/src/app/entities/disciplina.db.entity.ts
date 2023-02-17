@@ -30,10 +30,14 @@ export class DisciplinaDbEntity implements Disciplina {
   @OneToMany(() => TarefaDbEntity, (tarefa) => tarefa.disciplina)
   tarefas!: TarefaDbEntity[];
 
-  //
-
+  @OneToMany(
+    () => DisciplinaProfessorDbEntity,
+    (disciplinaProfessor) => disciplinaProfessor.disciplina,
+  )
   disciplinaProfessor!: DisciplinaProfessorDbEntity[];
+  //
 
   //
+
   professores!: ProfessorDbEntity[];
 }
