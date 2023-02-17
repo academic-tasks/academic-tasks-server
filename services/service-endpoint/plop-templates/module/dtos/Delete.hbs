@@ -1,0 +1,8 @@
+import { IDelete{{ pascalCase name }}Input } from '@academic-tasks/schemas';
+import { Field, InputType } from '@nestjs/graphql';
+
+@InputType()
+export class Delete{{ pascalCase name }}InputType implements IDelete{{ pascalCase name }}Input {
+  @Field()
+  id!: string;
+}

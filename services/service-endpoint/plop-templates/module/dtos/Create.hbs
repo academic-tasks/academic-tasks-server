@@ -1,0 +1,8 @@
+import { ICreate{{ pascalCase name }}Input } from '@academic-tasks/schemas';
+import { Field, InputType } from '@nestjs/graphql';
+
+@InputType()
+export class Create{{ pascalCase name }}InputType implements ICreate{{ pascalCase name }}Input {
+  @Field(() => String)
+  placeholder!: string;
+}

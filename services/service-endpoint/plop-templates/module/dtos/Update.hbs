@@ -1,0 +1,11 @@
+import { IUpdate{{ pascalCase name }}InputZod } from '@academic-tasks/schemas';
+import { Field, InputType } from '@nestjs/graphql';
+
+@InputType()
+export class Update{{ pascalCase name }}InputType implements IUpdate{{ pascalCase name }}InputZod {
+  @Field()
+  id!: string;
+
+  @Field(() => String, { nullable: true })
+  placeholder?: string;
+}

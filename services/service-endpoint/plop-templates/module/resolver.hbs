@@ -1,0 +1,105 @@
+import {
+  Create{{ pascalCase name }}InputZod,
+  Delete{{ pascalCase name }}InputZod,
+  Find{{ pascalCase name }}ByIdInputZod,
+  Update{{ pascalCase name }}InputZod,
+} from '@academic-tasks/schemas';
+import {
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
+import { AuthMode } from '../../../infrastructure/auth/consts/AuthMode';
+import { BindResourceActionRequest } from '../../../infrastructure/auth/decorators/BindResourceActionRequest.decorator';
+import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
+import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
+import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
+import { {{ pascalCase name }}Type } from './{{ paramCase name }}.type';
+import {
+  Create{{ pascalCase name }}InputType,
+  Delete{{ pascalCase name }}InputType,
+  Find{{ pascalCase name }}ByIdInputType,
+  Update{{ pascalCase name }}InputType,
+} from './dtos';
+
+@Resolver(() => {{ pascalCase name }}Type)
+export class {{ pascalCase name }}Resolver {
+  constructor(private {{ camelCase name }}Service: {{ pascalCase name }}Service) {}
+
+  // START: queries
+
+  @ResourceAuth(AuthMode.STRICT)
+  @Query(() => {{ pascalCase name }}Type)
+  async find{{ pascalCase name }}ById(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @ValidatedArgs('dto', Find{{ pascalCase name }}ByIdInputZod)
+    dto: Find{{ pascalCase name }}ByIdInputType,
+  ) {
+    return this.{{ camelCase name }}Service.find{{ pascalCase name }}ById(resourceActionRequest, dto);
+  }
+
+  // END: queries
+
+  // START: mutations
+
+  @ResourceAuth(AuthMode.STRICT)
+  @Mutation(() => {{ pascalCase name }}Type)
+  async create{{ pascalCase name }}(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @ValidatedArgs('dto', Create{{ pascalCase name }}InputZod)
+    dto: Create{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.create{{ pascalCase name }}(resourceActionRequest, dto);
+  }
+
+  @ResourceAuth(AuthMode.STRICT)
+  @Mutation(() => {{ pascalCase name }}Type)
+  async update{{ pascalCase name }}(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @ValidatedArgs('dto', Update{{ pascalCase name }}InputZod)
+    dto: Update{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.update{{ pascalCase name }}(resourceActionRequest, dto);
+  }
+
+  @ResourceAuth(AuthMode.STRICT)
+  @Mutation(() => {{ pascalCase name }}Type)
+  async delete{{ pascalCase name }}(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @ValidatedArgs('dto', Delete{{ pascalCase name }}InputZod)
+    dto: Delete{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.delete{{ pascalCase name }}(resourceActionRequest, dto);
+  }
+  // END: mutations
+
+  // START: fields resolvers
+
+  /*
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('field', () => GraphQLJSON)
+  async field(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() {{ camelCase name }}: {{ pascalCase name }}Type,
+  ): Promise<{{ pascalCase name }}Type['field']> {
+    return this.{{ camelCase name }}Service.get{{ pascalCase name }}Field(resourceActionRequest, {{ camelCase name }}.id);
+  }
+  */
+
+  /*
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('relation', () => GraphQLJSON)
+  async relation(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() {{ camelCase name }}: {{ pascalCase name }}Type,
+  ): Promise<{{ pascalCase name }}Type['relation']> {
+    return this.{{ camelCase name }}Service.get{{ pascalCase name }}Relation(resourceActionRequest, {{ camelCase name }}.id);
+  }
+  */
+
+  // END: fields resolvers
+}

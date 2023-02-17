@@ -1,0 +1,11 @@
+import { {{ pascalCase name }} } from '@academic-tasks/schemas';
+import { Field, ObjectType } from '@nestjs/graphql';
+
+@ObjectType('{{ pascalCase name }}')
+export class {{ pascalCase name }}Type implements {{ pascalCase name }} {
+  @Field()
+  id!: string;
+
+  @Field()
+  placeholder!: string;
+}
