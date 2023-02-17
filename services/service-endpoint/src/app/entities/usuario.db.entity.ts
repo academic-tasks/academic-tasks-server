@@ -1,7 +1,15 @@
 import { ListaMembro, Usuario } from '@academic-tasks/schemas';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { v4 as uuidV4 } from 'uuid';
 import { CargoDbEntity } from './cargo.db.entity';
+import { ListaMembroDbEntity } from './lista-membro.db.entity';
 
 @Entity('usuario')
 export class UsuarioDbEntity implements Usuario {
@@ -18,7 +26,8 @@ export class UsuarioDbEntity implements Usuario {
 
   //
 
-  listaMembros!: ListaMembro[];
+  @OneToMany(() => ListaMembroDbEntity, (listaMembro) => listaMembro.usuario)
+  listaMembro!: ListaMembroDbEntity[];
 
   @ManyToMany(() => CargoDbEntity, { cascade: ['insert', 'remove'] })
   @JoinTable({
@@ -33,6 +42,10 @@ export class UsuarioDbEntity implements Usuario {
     },
   })
   cargos!: CargoDbEntity[];
+
+  //
+
+  listaMembros!: ListaMembro[];
 
   static setupInitialIds(self: UsuarioDbEntity) {
     if (!self.id) {
