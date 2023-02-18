@@ -12,13 +12,11 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { omit, pick } from 'lodash';
 import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
 import { IProfessorRepository } from 'src/app/repositories/professor.repository';
-import { ITurmaRepository } from 'src/app/repositories/turma.repository';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
   REPOSITORY_DISCIPLINA,
   REPOSITORY_PROFESSOR,
-  REPOSITORY_TURMA,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { ProfessorDbEntity } from '../../entities/professor.db.entity';
 
@@ -152,15 +150,14 @@ export class ProfessorService {
       professorId,
     );
 
-    const relationQuery = this.disciplinaRepository
+    const disciplinaQuery = this.disciplinaRepository
       .createQueryBuilder('disciplina')
-      .innerJoin('relation.relation_professor', 'relation_professor')
-      .select(['relation.id'])
-      .where('relation_professor.id_professor_fk = :id', { id: professor.id });
+      .innerJoin('disciplina.disciplinaProfessor', 'disciplina_professor')
+      .innerJoin('disciplina_professor.professor', 'professor')
+      .select(['disciplina.id'])
+      .where('professor.id_professor = :id', { id: professor.id });
 
-    // const result = await relationQuery.getOne();
-    // const result = await relationQuery.getMany();
-    const result = null;
+    const result = await disciplinaQuery.getMany();
 
     return result;
   }

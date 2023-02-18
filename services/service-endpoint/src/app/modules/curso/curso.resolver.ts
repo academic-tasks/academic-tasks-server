@@ -11,12 +11,12 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
 import { AuthMode } from '../../../infrastructure/auth/consts/AuthMode';
 import { BindResourceActionRequest } from '../../../infrastructure/auth/decorators/BindResourceActionRequest.decorator';
 import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { TurmaType } from '../turma/turma.type';
 import { CursoService } from './curso.service';
 import { CursoType } from './curso.type';
 import {
@@ -90,7 +90,7 @@ export class CursoResolver {
   }
 
   @ResourceAuth(AuthMode.OPTIONAL)
-  @ResolveField('turmas', () => GraphQLJSON)
+  @ResolveField('turmas', () => [TurmaType])
   async turmas(
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() curso: CursoType,

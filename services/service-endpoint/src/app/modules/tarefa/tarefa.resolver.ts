@@ -11,20 +11,21 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
 import { AuthMode } from '../../../infrastructure/auth/consts/AuthMode';
 import { BindResourceActionRequest } from '../../../infrastructure/auth/decorators/BindResourceActionRequest.decorator';
 import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
-import { TarefaService } from './tarefa.service';
-import { TarefaType } from './tarefa.type';
+import { DisciplinaType } from '../disciplina/disciplina.type';
+import { ListaType } from '../lista/lista.type';
 import {
   CreateTarefaInputType,
   DeleteTarefaInputType,
   FindTarefaByIdInputType,
   UpdateTarefaInputType,
 } from './dtos';
+import { TarefaService } from './tarefa.service';
+import { TarefaType } from './tarefa.type';
 
 @Resolver(() => TarefaType)
 export class TarefaResolver {
@@ -100,6 +101,91 @@ export class TarefaResolver {
     return this.tarefaService.getTarefaRelation(resourceActionRequest, tarefa.id);
   }
   */
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('title', () => String)
+  async title(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<TarefaType['title']> {
+    return this.tarefaService.getTarefaTitle(resourceActionRequest, tarefa.id);
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('description', () => String)
+  async description(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<TarefaType['description']> {
+    return this.tarefaService.getTarefaDescription(
+      resourceActionRequest,
+      tarefa.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('dateOpen', () => Date, { nullable: true })
+  async dateOpen(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<TarefaType['dateOpen']> {
+    return this.tarefaService.getTarefaDateOpen(
+      resourceActionRequest,
+      tarefa.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('dateClose', () => Date, { nullable: true })
+  async dateClose(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<TarefaType['dateClose']> {
+    return this.tarefaService.getTarefaDateClose(
+      resourceActionRequest,
+      tarefa.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('submissionFormat', () => String)
+  async submissionFormat(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<TarefaType['submissionFormat']> {
+    return this.tarefaService.getTarefaSubmissionFormat(
+      resourceActionRequest,
+      tarefa.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('lista', () => ListaType)
+  async lista(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<ListaType> {
+    const lista = await this.tarefaService.getTarefaLista(
+      resourceActionRequest,
+      tarefa.id,
+    );
+
+    return lista as ListaType;
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('disciplina', () => DisciplinaType)
+  async disciplina(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() tarefa: TarefaType,
+  ): Promise<DisciplinaType> {
+    const disciplina = await this.tarefaService.getTarefaDisciplina(
+      resourceActionRequest,
+      tarefa.id,
+    );
+
+    return disciplina as DisciplinaType;
+  }
 
   // END: fields resolvers
 }

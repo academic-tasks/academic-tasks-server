@@ -8,6 +8,8 @@ export class TarefaType implements Tarefa {
   @Field()
   id!: string;
 
+  //
+
   @Field()
   title!: string;
 

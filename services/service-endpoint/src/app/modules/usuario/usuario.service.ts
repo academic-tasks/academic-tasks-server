@@ -8,6 +8,7 @@ import {
   IFindUsuarioByIdInput,
   ISetUsuarioRolesInput,
   IUpdateUsuarioInput,
+  ListaMembro,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
 import {
@@ -18,12 +19,14 @@ import {
 } from '@nestjs/common';
 import { castArray, omit, pick } from 'lodash';
 import { parralel } from 'src/app/helpers';
+import { IListaMembroRepository } from 'src/app/repositories/lista-membro.repository';
 import { KcClient } from 'src/infrastructure/auth/providers/kc-client';
 import { KC_CLIENT } from 'src/infrastructure/consts/KC_CLIENT.const';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
   REPOSITORY_CARGO,
+  REPOSITORY_LISTA_MEMBRO,
   REPOSITORY_USUARIO,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 
@@ -45,6 +48,9 @@ export class UsuarioService {
 
     @Inject(REPOSITORY_USUARIO)
     private usuarioRepository: IUsuarioRepository,
+
+    @Inject(REPOSITORY_LISTA_MEMBRO)
+    private listaMembroRepository: IListaMembroRepository,
   ) {}
 
   async findUsuarioById(
@@ -156,19 +162,37 @@ export class UsuarioService {
       usuarioId,
     );
 
-    const dbCargosQuery = this.cargoRepository
+    const cargoQuery = this.cargoRepository
       .createQueryBuilder('cargo')
       .innerJoin('cargo.usuarioHasCargo', 'usuario_has_cargo')
       .select(['cargo.id'])
       .where('usuario_has_cargo.id_usuario_fk = :id', { id: usuario.id });
 
-    const dbCargos = await dbCargosQuery.getMany();
-
-    const cargos = await parralel(dbCargos, (role) =>
+    const cargos = await parralel(await cargoQuery.getMany(), (role) =>
       this.cargoService.findCargoByIdSimple(resourceActionRequest, role.id),
     );
 
     return cargos as Cargo[];
+  }
+
+  async getUsuarioListaMembros(
+    resourceActionRequest: ResourceActionRequest,
+    usuarioId: string,
+  ) {
+    const usuario = await this.findUsuarioByIdSimple(
+      resourceActionRequest,
+      usuarioId,
+    );
+
+    const listaMembroQuery = this.listaMembroRepository
+      .createQueryBuilder('lista_membro')
+      .innerJoin('lista_membro.usuario', 'usuario')
+      .select(['lista_membro.id'])
+      .where('usuario.id_usuario = :id', { id: usuario.id });
+
+    const listaMembros = await listaMembroQuery.getMany();
+
+    return listaMembros as ListaMembro[];
   }
 
   async getUsuarioAuthorizationRules(

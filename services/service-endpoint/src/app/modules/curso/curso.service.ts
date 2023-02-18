@@ -9,11 +9,16 @@ import {
 import { subject } from '@casl/ability';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { omit, pick } from 'lodash';
+import { ITurmaRepository } from 'src/app/repositories/turma.repository';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
-import { REPOSITORY_CURSO } from '../../../infrastructure/database/constants/REPOSITORIES.const';
+import {
+  REPOSITORY_CURSO,
+  REPOSITORY_TURMA,
+} from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { CursoDbEntity } from '../../entities/curso.db.entity';
 import { ICursoRepository } from '../../repositories/curso.repository';
+import { TurmaType } from '../turma/turma.type';
 import { CursoType } from './curso.type';
 
 @Injectable()
@@ -21,6 +26,9 @@ export class CursoService {
   constructor(
     @Inject(REPOSITORY_CURSO)
     private cursoRepository: ICursoRepository,
+
+    @Inject(REPOSITORY_TURMA)
+    private turmaRepository: ITurmaRepository,
   ) {}
 
   async findCursoById(
@@ -92,8 +100,21 @@ export class CursoService {
   async getCursoTurmas(
     resourceActionRequest: ResourceActionRequest,
     cursoId: string,
-  ): Promise<CursoType['turmas']> {
-    return [];
+  ): Promise<TurmaType[]> {
+    const curso = await this.findCursoByIdSimple(
+      resourceActionRequest,
+      cursoId,
+    );
+
+    const turmaQuery = this.turmaRepository
+      .createQueryBuilder('turma')
+      .innerJoin('turma.curso', 'curso')
+      .select(['turma.id'])
+      .where('curso.id_curso = :id', { id: curso.id });
+
+    const result = await turmaQuery.getMany();
+
+    return result;
   }
 
   async createCurso(

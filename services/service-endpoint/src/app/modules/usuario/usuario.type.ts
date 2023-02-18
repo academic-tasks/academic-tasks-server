@@ -9,6 +9,8 @@ export class UsuarioType implements Usuario {
   @Field(() => String)
   id!: string;
 
+  //
+
   keycloakId!: string | null;
 
   @Field()
@@ -19,7 +21,7 @@ export class UsuarioType implements Usuario {
   @Field(() => [CargoType])
   cargos!: CargoType[];
 
-  // @Field(() => [ListaMembroType])
+  @Field(() => [ListaMembroType])
   listaMembros!: ListaMembroType[];
 
   // computed

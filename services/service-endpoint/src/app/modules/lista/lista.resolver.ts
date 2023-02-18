@@ -2,6 +2,7 @@ import {
   CreateListaInputZod,
   DeleteListaInputZod,
   FindListaByIdInputZod,
+  ListaMembro,
   UpdateListaInputZod,
 } from '@academic-tasks/schemas';
 import {
@@ -17,14 +18,15 @@ import { BindResourceActionRequest } from '../../../infrastructure/auth/decorato
 import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
-import { ListaService } from './lista.service';
-import { ListaType } from './lista.type';
+import { ListaMembroType } from '../lista-membro/lista-membro.type';
 import {
   CreateListaInputType,
   DeleteListaInputType,
   FindListaByIdInputType,
   UpdateListaInputType,
 } from './dtos';
+import { ListaService } from './lista.service';
+import { ListaType } from './lista.type';
 
 @Resolver(() => ListaType)
 export class ListaResolver {
@@ -100,6 +102,27 @@ export class ListaResolver {
     return this.listaService.getListaRelation(resourceActionRequest, lista.id);
   }
   */
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('title', () => GraphQLJSON)
+  async title(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() lista: ListaType,
+  ): Promise<ListaType['title']> {
+    return this.listaService.getListaTitle(resourceActionRequest, lista.id);
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('listaMembros', () => [ListaMembroType])
+  async listaMembros(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() lista: ListaType,
+  ): Promise<ListaMembro[]> {
+    return this.listaService.getListaListaMembros(
+      resourceActionRequest,
+      lista.id,
+    );
+  }
 
   // END: fields resolvers
 }

@@ -11,12 +11,14 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
 import { AuthMode } from '../../../infrastructure/auth/consts/AuthMode';
 import { BindResourceActionRequest } from '../../../infrastructure/auth/decorators/BindResourceActionRequest.decorator';
 import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { ProfessorType } from '../professor/professor.type';
+import { TarefaType } from '../tarefa/tarefa.type';
+import { TurmaType } from '../turma/turma.type';
 import { DisciplinaService } from './disciplina.service';
 import { DisciplinaType } from './disciplina.type';
 import {
@@ -39,7 +41,10 @@ export class DisciplinaResolver {
     @ValidatedArgs('dto', FindDisciplinaByIdInputZod)
     dto: FindDisciplinaByIdInputType,
   ) {
-    return this.disciplinaService.findDisciplinaById(resourceActionRequest, dto);
+    return this.disciplinaService.findDisciplinaById(
+      resourceActionRequest,
+      dto,
+    );
   }
 
   // END: queries
@@ -100,6 +105,66 @@ export class DisciplinaResolver {
     return this.disciplinaService.getDisciplinaRelation(resourceActionRequest, disciplina.id);
   }
   */
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('name', () => String)
+  async name(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() disciplina: DisciplinaType,
+  ): Promise<DisciplinaType['name']> {
+    return this.disciplinaService.getDisciplinaName(
+      resourceActionRequest,
+      disciplina.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('codSuap', () => String)
+  async codSuap(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() disciplina: DisciplinaType,
+  ): Promise<DisciplinaType['codSuap']> {
+    return this.disciplinaService.getDisciplinaCodSuap(
+      resourceActionRequest,
+      disciplina.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('turma', () => TurmaType)
+  async turma(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() disciplina: DisciplinaType,
+  ): Promise<TurmaType> {
+    return this.disciplinaService.getDisciplinaTurma(
+      resourceActionRequest,
+      disciplina.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('tarefas', () => [TarefaType])
+  async tarefas(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() disciplina: DisciplinaType,
+  ): Promise<TarefaType[]> {
+    return this.disciplinaService.getDisciplinaTarefas(
+      resourceActionRequest,
+      disciplina.id,
+    );
+  }
+
+  @ResourceAuth(AuthMode.OPTIONAL)
+  @ResolveField('professores', () => [ProfessorType])
+  async professores(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() disciplina: DisciplinaType,
+  ): Promise<ProfessorType[]> {
+    return this.disciplinaService.getDisciplinaProfesses(
+      resourceActionRequest,
+      disciplina.id,
+    );
+  }
 
   // END: fields resolvers
 }

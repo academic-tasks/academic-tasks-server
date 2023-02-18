@@ -7,6 +7,8 @@ export class ProfessorType implements Professor {
   @Field()
   id!: string;
 
+  //
+
   @Field()
   name!: string;
 

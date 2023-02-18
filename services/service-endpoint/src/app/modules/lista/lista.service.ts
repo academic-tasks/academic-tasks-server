@@ -1,7 +1,6 @@
 import {
   AppAction,
   AppSubject,
-  Lista,
   ICreateListaInput,
   IDeleteListaInput,
   IFindListaByIdInput,
@@ -10,12 +9,13 @@ import {
 import { subject } from '@casl/ability';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { omit, pick } from 'lodash';
-import { parralel } from 'src/app/helpers';
+import { IListaMembroRepository } from 'src/app/repositories/lista-membro.repository';
 import { IListaRepository } from 'src/app/repositories/lista.repository';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
   REPOSITORY_LISTA,
+  REPOSITORY_LISTA_MEMBRO,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { ListaDbEntity } from '../../entities/lista.db.entity';
 
@@ -24,6 +24,9 @@ export class ListaService {
   constructor(
     @Inject(REPOSITORY_LISTA)
     private listaRepository: IListaRepository,
+
+    @Inject(REPOSITORY_LISTA_MEMBRO)
+    private listaMembroRepository: IListaMembroRepository,
   ) {}
 
   async findListaById(
@@ -114,6 +117,33 @@ export class ListaService {
     return result;
   }
   */
+
+  async getListaTitle(
+    resourceActionRequest: ResourceActionRequest,
+    listaId: string,
+  ): Promise<ListaDbEntity['title']> {
+    return this.getListaGenericField(resourceActionRequest, listaId, 'title');
+  }
+
+  async getListaListaMembros(
+    resourceActionRequest: ResourceActionRequest,
+    listaId: string,
+  ): Promise<ListaDbEntity['listaMembros']> {
+    const lista = await this.findListaByIdSimple(
+      resourceActionRequest,
+      listaId,
+    );
+
+    const listaMemboQuery = this.listaMembroRepository
+      .createQueryBuilder('lista_membro')
+      .innerJoin('lista_membro.lista', 'lista')
+      .select(['lista_membro.id'])
+      .where('lista.id_lista = :id', { id: lista.id });
+
+    const result = await listaMemboQuery.getMany();
+
+    return result;
+  }
 
   async createLista(
     resourceActionRequest: ResourceActionRequest,

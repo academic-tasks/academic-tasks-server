@@ -1,20 +1,29 @@
 import {
   AppAction,
   AppSubject,
-  Tarefa,
+  Disciplina,
   ICreateTarefaInput,
   IDeleteTarefaInput,
   IFindTarefaByIdInput,
   IUpdateTarefaInput,
+  Lista,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { omit, pick } from 'lodash';
-import { parralel } from 'src/app/helpers';
+import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
+import { IListaRepository } from 'src/app/repositories/lista.repository';
 import { ITarefaRepository } from 'src/app/repositories/tarefa.repository';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
+  REPOSITORY_DISCIPLINA,
+  REPOSITORY_LISTA,
   REPOSITORY_TAREFA,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { TarefaDbEntity } from '../../entities/tarefa.db.entity';
@@ -24,6 +33,12 @@ export class TarefaService {
   constructor(
     @Inject(REPOSITORY_TAREFA)
     private tarefaRepository: ITarefaRepository,
+
+    @Inject(REPOSITORY_LISTA)
+    private listaRepository: IListaRepository,
+
+    @Inject(REPOSITORY_DISCIPLINA)
+    private disciplinaRepository: IDisciplinaRepository,
   ) {}
 
   async findTarefaById(
@@ -115,6 +130,107 @@ export class TarefaService {
   }
   */
 
+  async getTarefaTitle(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<TarefaDbEntity['title']> {
+    return this.getTarefaGenericField(resourceActionRequest, tarefaId, 'title');
+  }
+
+  async getTarefaDescription(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<TarefaDbEntity['description']> {
+    return this.getTarefaGenericField(
+      resourceActionRequest,
+      tarefaId,
+      'description',
+    );
+  }
+
+  async getTarefaDateOpen(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<TarefaDbEntity['dateOpen']> {
+    return this.getTarefaGenericField(
+      resourceActionRequest,
+      tarefaId,
+      'dateOpen',
+    );
+  }
+
+  async getTarefaDateClose(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<TarefaDbEntity['dateClose']> {
+    return this.getTarefaGenericField(
+      resourceActionRequest,
+      tarefaId,
+      'dateClose',
+    );
+  }
+
+  async getTarefaSubmissionFormat(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<TarefaDbEntity['submissionFormat']> {
+    return this.getTarefaGenericField(
+      resourceActionRequest,
+      tarefaId,
+      'submissionFormat',
+    );
+  }
+
+  async getTarefaLista(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<Lista> {
+    const tarefa = await this.findTarefaByIdSimple(
+      resourceActionRequest,
+      tarefaId,
+    );
+
+    const listaQuery = this.listaRepository
+      .createQueryBuilder('lista')
+      .innerJoin('lista.tarefas', 'tarefa')
+      .select(['lista.id'])
+      .where('tarefa.id_tarefa = :id', { id: tarefa.id });
+
+    const result = await listaQuery.getOne();
+    // const result = await relationQuery.getMany();
+
+    if (!result) {
+      throw new InternalServerErrorException();
+    }
+
+    return result;
+  }
+
+  async getTarefaDisciplina(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<Disciplina> {
+    const tarefa = await this.findTarefaByIdSimple(
+      resourceActionRequest,
+      tarefaId,
+    );
+
+    const disciplinaQuery = this.disciplinaRepository
+      .createQueryBuilder('disciplina')
+      .innerJoin('disciplina.tarefas', 'tarefa')
+      .select(['disciplina.id'])
+      .where('tarefa.id_tarefa = :id', { id: tarefa.id });
+
+    const result = await disciplinaQuery.getOne();
+    // const result = await relationQuery.getMany();
+
+    if (!result) {
+      throw new InternalServerErrorException();
+    }
+
+    return result;
+  }
+
   async createTarefa(
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateTarefaInput,
@@ -170,7 +286,10 @@ export class TarefaService {
     resourceActionRequest: ResourceActionRequest,
     dto: IDeleteTarefaInput,
   ) {
-    const tarefa = await this.findTarefaByIdSimple(resourceActionRequest, dto.id);
+    const tarefa = await this.findTarefaByIdSimple(
+      resourceActionRequest,
+      dto.id,
+    );
 
     resourceActionRequest.ensurePermission(
       AppAction.DELETE,

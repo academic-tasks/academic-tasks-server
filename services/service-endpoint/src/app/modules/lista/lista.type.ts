@@ -1,4 +1,4 @@
-import { Lista, ListaMembro } from '@academic-tasks/schemas';
+import { Lista } from '@academic-tasks/schemas';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { ListaMembroType } from '../lista-membro/lista-membro.type';
 
@@ -11,5 +11,5 @@ export class ListaType implements Lista {
   title!: string;
 
   @Field(() => [ListaMembroType])
-  listaMembros!: ListaMembro[];
+  listaMembros!: ListaMembroType[];
 }

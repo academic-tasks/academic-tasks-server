@@ -16,6 +16,8 @@ export class UsuarioDbEntity implements Usuario {
   @PrimaryColumn({ name: 'id_usuario' })
   id!: string;
 
+  //
+
   @Column({ name: 'keycloak_id_usuario', type: 'varchar', nullable: true })
   keycloakId!: string | null;
 

@@ -1,21 +1,33 @@
 import {
   AppAction,
   AppSubject,
-  Disciplina,
   ICreateDisciplinaInput,
   IDeleteDisciplinaInput,
   IFindDisciplinaByIdInput,
   IUpdateDisciplinaInput,
+  Professor,
+  Tarefa,
+  Turma,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { omit, pick } from 'lodash';
-import { parralel } from 'src/app/helpers';
 import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
+import { IProfessorRepository } from 'src/app/repositories/professor.repository';
+import { ITarefaRepository } from 'src/app/repositories/tarefa.repository';
+import { ITurmaRepository } from 'src/app/repositories/turma.repository';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
   REPOSITORY_DISCIPLINA,
+  REPOSITORY_PROFESSOR,
+  REPOSITORY_TAREFA,
+  REPOSITORY_TURMA,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { DisciplinaDbEntity } from '../../entities/disciplina.db.entity';
 
@@ -24,6 +36,15 @@ export class DisciplinaService {
   constructor(
     @Inject(REPOSITORY_DISCIPLINA)
     private disciplinaRepository: IDisciplinaRepository,
+
+    @Inject(REPOSITORY_TURMA)
+    private turmaRepository: ITurmaRepository,
+
+    @Inject(REPOSITORY_TAREFA)
+    private tarefaRepository: ITarefaRepository,
+
+    @Inject(REPOSITORY_PROFESSOR)
+    private professorRepository: IProfessorRepository,
   ) {}
 
   async findDisciplinaById(
@@ -48,7 +69,10 @@ export class DisciplinaService {
       ...options,
     });
 
-    return resourceActionRequest.readResource(AppSubject.DISCIPLINA, disciplina);
+    return resourceActionRequest.readResource(
+      AppSubject.DISCIPLINA,
+      disciplina,
+    );
   }
 
   async findDisciplinaByIdSimple(
@@ -115,6 +139,93 @@ export class DisciplinaService {
   }
   */
 
+  async getDisciplinaName(
+    resourceActionRequest: ResourceActionRequest,
+    disciplinaId: string,
+  ): Promise<DisciplinaDbEntity['name']> {
+    return this.getDisciplinaGenericField(
+      resourceActionRequest,
+      disciplinaId,
+      'name',
+    );
+  }
+
+  async getDisciplinaTurma(
+    resourceActionRequest: ResourceActionRequest,
+    disciplinaId: string,
+  ): Promise<Turma> {
+    const disciplina = await this.findDisciplinaByIdSimple(
+      resourceActionRequest,
+      disciplinaId,
+    );
+
+    const relationQuery = this.turmaRepository
+      .createQueryBuilder('turma')
+      .innerJoin('turma.disciplinas', 'disciplina')
+      .select(['turma.id'])
+      .where('disciplina.id_disciplina = :id', { id: disciplina.id });
+
+    const result = await relationQuery.getOne();
+
+    if (!result) {
+      throw new InternalServerErrorException();
+    }
+
+    return result;
+  }
+
+  async getDisciplinaTarefas(
+    resourceActionRequest: ResourceActionRequest,
+    disciplinaId: string,
+  ): Promise<Tarefa[]> {
+    const disciplina = await this.findDisciplinaByIdSimple(
+      resourceActionRequest,
+      disciplinaId,
+    );
+
+    const tarefaQuery = this.tarefaRepository
+      .createQueryBuilder('tarefa')
+      .innerJoin('tarefa.disciplina', 'disciplina')
+      .select(['tarefa.id'])
+      .where('disciplina.id_disciplina = :id', { id: disciplina.id });
+
+    const result = await tarefaQuery.getMany();
+
+    return result;
+  }
+
+  async getDisciplinaProfesses(
+    resourceActionRequest: ResourceActionRequest,
+    disciplinaId: string,
+  ): Promise<Professor[]> {
+    const disciplina = await this.findDisciplinaByIdSimple(
+      resourceActionRequest,
+      disciplinaId,
+    );
+
+    const professorQuery = this.professorRepository
+      .createQueryBuilder('professor')
+      .innerJoin('professor.disciplina_professor', 'disciplina_professor')
+      .innerJoin('disciplina_professor.disciplina', 'disciplina')
+      .select(['professor.id'])
+      .where('disciplina.id_disciplina = :id', { id: disciplina.id });
+
+    const result = await professorQuery.getMany();
+
+    return result;
+  }
+
+  async getDisciplinaCodSuap(
+    resourceActionRequest: ResourceActionRequest,
+    disciplinaId: string,
+  ): Promise<DisciplinaDbEntity['codSuap']> {
+    return this.getDisciplinaGenericField(
+      resourceActionRequest,
+      disciplinaId,
+      'codSuap',
+    );
+  }
+
   async createDisciplina(
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateDisciplinaInput,
@@ -146,7 +257,10 @@ export class DisciplinaService {
   ) {
     const { id } = dto;
 
-    const disciplina = await this.findDisciplinaByIdSimple(resourceActionRequest, id);
+    const disciplina = await this.findDisciplinaByIdSimple(
+      resourceActionRequest,
+      id,
+    );
 
     const fieldsData = omit(dto, ['id']);
 
@@ -170,7 +284,10 @@ export class DisciplinaService {
     resourceActionRequest: ResourceActionRequest,
     dto: IDeleteDisciplinaInput,
   ) {
-    const disciplina = await this.findDisciplinaByIdSimple(resourceActionRequest, dto.id);
+    const disciplina = await this.findDisciplinaByIdSimple(
+      resourceActionRequest,
+      dto.id,
+    );
 
     resourceActionRequest.ensurePermission(
       AppAction.DELETE,

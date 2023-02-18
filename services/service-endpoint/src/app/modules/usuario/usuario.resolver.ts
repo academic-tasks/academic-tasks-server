@@ -19,6 +19,7 @@ import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAu
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
 import { CargoType } from '../cargo/cargo.type';
+import { ListaMembroType } from '../lista-membro/lista-membro.type';
 import {
   CreateUsuarioInputType,
   DeleteUsuarioInputType,
@@ -113,14 +114,27 @@ export class UsuarioResolver {
   async cargos(
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() usuario: UsuarioType,
-  ): Promise<UsuarioType['cargos']> {
-    const { id } = usuario;
-
-    const cargos = <UsuarioType['cargos']>(
-      await this.usuarioService.getUsuarioCargos(resourceActionRequest, id)
+  ): Promise<CargoType[]> {
+    const cargos = await this.usuarioService.getUsuarioCargos(
+      resourceActionRequest,
+      usuario.id,
     );
 
-    return cargos;
+    return cargos as CargoType[];
+  }
+
+  @ResourceAuth(AuthMode.STRICT)
+  @ResolveField('listaMembros', () => [ListaMembroType])
+  async listaMembros(
+    @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
+    @Parent() usuario: UsuarioType,
+  ): Promise<ListaMembroType[]> {
+    const listaMembros = await this.usuarioService.getUsuarioListaMembros(
+      resourceActionRequest,
+      usuario.id,
+    );
+
+    return listaMembros as ListaMembroType[];
   }
 
   @ResourceAuth(AuthMode.STRICT)
