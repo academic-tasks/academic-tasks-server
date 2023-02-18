@@ -1,5 +1,6 @@
 import { Tarefa } from '@academic-tasks/schemas';
 import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { v4 as uuidV4 } from 'uuid';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 import { ListaDbEntity } from './lista.db.entity';
 
@@ -39,4 +40,12 @@ export class TarefaDbEntity implements Tarefa {
   @ManyToOne(() => DisciplinaDbEntity, (disciplina) => disciplina.tarefas)
   @JoinColumn({ name: 'id_disciplina_fk' })
   disciplina!: DisciplinaDbEntity;
+
+  //
+
+  static setupInitialIds(self: TarefaDbEntity) {
+    if (!self.id) {
+      self.id = uuidV4();
+    }
+  }
 }

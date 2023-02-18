@@ -1,7 +1,6 @@
 import { Curso } from '@academic-tasks/schemas';
 import { Field, ObjectType } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
-import { TurmaDbEntity } from 'src/app/entities/turma.db.entity';
+import { TurmaType } from '../turma/turma.type';
 
 @ObjectType('Curso')
 export class CursoType implements Curso {
@@ -11,6 +10,6 @@ export class CursoType implements Curso {
   @Field(() => String)
   name!: string;
 
-  @Field(() => GraphQLJSON)
-  turmas!: TurmaDbEntity[];
+  @Field(() => [TurmaType])
+  turmas!: TurmaType[];
 }

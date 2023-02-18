@@ -12,7 +12,15 @@ import { DateScalar } from '../infrastructure/graphql/DateScalar';
 import { HttpExceptionFilter } from '../infrastructure/graphql/HttpExceptionFilter';
 import { AppResolver } from './app.resolver';
 import { CargoModule } from './modules/cargo/cargo.module';
+import { CursoModule } from './modules/curso/curso.module';
+import { DisciplinaProfessorModule } from './modules/disciplina-professor/disciplina-professor.module';
+import { DisciplinaModule } from './modules/disciplina/disciplina.module';
+import { ListaMembroModule } from './modules/lista-membro/lista-membro.module';
+import { ListaModule } from './modules/lista/lista.module';
 import { PermissaoModule } from './modules/permissao/permissao.module';
+import { ProfessorModule } from './modules/professor/professor.module';
+import { TarefaModule } from './modules/tarefa/tarefa.module';
+import { TurmaModule } from './modules/turma/turma.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 
 @Module({
@@ -30,14 +38,34 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 
       resolvers: { JSON: GraphQLJSON },
     }),
+
     //
+
     ThrottlerModule.forRoot({ ttl: 60, limit: 10 }),
     DatabaseModule,
     AuthModule,
+
     //
+
     UsuarioModule,
     PermissaoModule,
     CargoModule,
+
+    //
+
+    CursoModule,
+
+    TurmaModule,
+
+    ProfessorModule,
+
+    DisciplinaModule,
+    DisciplinaProfessorModule,
+
+    ListaModule,
+    ListaMembroModule,
+
+    TarefaModule,
   ],
 
   controllers: [],

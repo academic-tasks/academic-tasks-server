@@ -8,7 +8,12 @@ import {
 
 const MODULE_FILES_TS = ['dtos/index'];
 const MODULE_FILES_TS_ROOT = ['module', 'service', 'resolver', 'type'];
-const MODULE_FILES_DTO_BASE = ['Create', 'Delete', 'FindById', 'Update'];
+const MODULE_FILES_DTO_BASE = [
+  'Create{}',
+  'Delete{}',
+  'Find{}ById',
+  'Update{}',
+];
 
 export default function (
   /** @type {import('plop').NodePlopAPI} */
@@ -35,18 +40,24 @@ export default function (
         type: 'add',
         path: `src/app/modules/{{paramCase name}}/{{paramCase name}}.${rootFile}.ts`,
         templateFile: `plop-templates/module/${rootFile}.hbs`,
+        skipIfExists: true,
       })),
 
       ...MODULE_FILES_TS.map((path) => ({
         type: 'add',
         path: `src/app/modules/{{paramCase name}}/${path}.ts`,
         templateFile: `plop-templates/module/${path}.hbs`,
+        skipIfExists: true,
       })),
 
       ...MODULE_FILES_DTO_BASE.map((baseName) => ({
+        input: baseName.replace('{}', ''),
+        output: baseName.replace('{}', '{{ pascalCase name }}'),
+      })).map(({ input, output }) => ({
         type: 'add',
-        path: `src/app/modules/{{paramCase name}}/dtos/${baseName}{{ pascalCase name }}.input.type.ts`,
-        templateFile: `plop-templates/module/dtos/${baseName}.hbs`,
+        path: `src/app/modules/{{paramCase name}}/dtos/${output}.input.type.ts`,
+        templateFile: `plop-templates/module/dtos/${input}.hbs`,
+        skipIfExists: true,
       })),
     ], // array of actions
   });

@@ -1,4 +1,4 @@
-import { Turma } from "./Turma";
+import { Disciplina } from "./Disciplina";
 
 export type Professor = {
   id: string;
@@ -9,5 +9,5 @@ export type Professor = {
 
   //
 
-  turmas: Turma[];
+  disciplinas: Disciplina[];
 };

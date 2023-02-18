@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { v4 as uuidV4 } from 'uuid';
 import { DisciplinaProfessorDbEntity } from './disciplina-professor.db.entity';
 import { ProfessorDbEntity } from './professor.db.entity';
 import { TarefaDbEntity } from './tarefa.db.entity';
@@ -40,4 +41,12 @@ export class DisciplinaDbEntity implements Disciplina {
   //
 
   professores!: ProfessorDbEntity[];
+
+  //
+
+  static setupInitialIds(self: DisciplinaDbEntity) {
+    if (!self.id) {
+      self.id = uuidV4();
+    }
+  }
 }

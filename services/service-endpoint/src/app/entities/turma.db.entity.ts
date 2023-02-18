@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
+import { v4 as uuidV4 } from 'uuid';
 import { CursoDbEntity } from './curso.db.entity';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 
@@ -27,10 +28,22 @@ export class TurmaDbEntity implements Turma {
 
   //
 
+  
+
+  //
+
   @ManyToOne(() => CursoDbEntity, (curso) => curso.turmas)
   @JoinColumn({ name: 'id_curso_fk' })
   curso!: CursoDbEntity;
 
   @OneToMany(() => DisciplinaDbEntity, (disciplina) => disciplina.turma)
   disciplinas!: DisciplinaDbEntity[];
+
+  //
+
+  static setupInitialIds(self: TurmaDbEntity) {
+    if (!self.id) {
+      self.id = uuidV4();
+    }
+  }
 }
