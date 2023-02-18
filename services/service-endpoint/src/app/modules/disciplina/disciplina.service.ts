@@ -16,7 +16,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
+import { TurmaDbEntity } from 'src/app/entities/turma.db.entity';
 import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
 import { IProfessorRepository } from 'src/app/repositories/professor.repository';
 import { ITarefaRepository } from 'src/app/repositories/tarefa.repository';
@@ -30,10 +31,13 @@ import {
   REPOSITORY_TURMA,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { DisciplinaDbEntity } from '../../entities/disciplina.db.entity';
+import { TurmaService } from '../turma/turma.service';
 
 @Injectable()
 export class DisciplinaService {
   constructor(
+    private turmaService: TurmaService,
+
     @Inject(REPOSITORY_DISCIPLINA)
     private disciplinaRepository: IDisciplinaRepository,
 
@@ -194,7 +198,7 @@ export class DisciplinaService {
     return result;
   }
 
-  async getDisciplinaProfesses(
+  async getDisciplinaProfessores(
     resourceActionRequest: ResourceActionRequest,
     disciplinaId: string,
   ): Promise<Professor[]> {
@@ -230,7 +234,12 @@ export class DisciplinaService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateDisciplinaInput,
   ) {
-    const fieldsData = pick(dto, []);
+    const turma = await this.turmaService.findTurmaByIdSimple(
+      resourceActionRequest,
+      dto.turmaId,
+    );
+
+    const fieldsData = omit(dto, ['turmaId']);
 
     const disciplina = resourceActionRequest.updateResource(
       AppSubject.DISCIPLINA,
@@ -240,6 +249,8 @@ export class DisciplinaService {
     );
 
     DisciplinaDbEntity.setupInitialIds(disciplina);
+
+    disciplina.turma = <TurmaDbEntity>{ id: turma.id };
 
     resourceActionRequest.ensurePermission(
       AppAction.CREATE,

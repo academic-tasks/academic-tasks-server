@@ -1,9 +1,10 @@
 import { Lista } from '@academic-tasks/schemas';
-import { Column, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { v4 as uuidV4 } from 'uuid';
 import { ListaMembroDbEntity } from './lista-membro.db.entity';
 import { TarefaDbEntity } from './tarefa.db.entity';
 
+@Entity('lista')
 export class ListaDbEntity implements Lista {
   @PrimaryColumn({ name: 'id_lista' })
   id!: string;

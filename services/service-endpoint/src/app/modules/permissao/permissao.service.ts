@@ -8,7 +8,7 @@ import {
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { REPOSITORY_PERMISSAO } from '../../../infrastructure/database/constants/REPOSITORIES.const';
@@ -112,7 +112,7 @@ export class PermissoesService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreatePermissaoInput,
   ) {
-    const fieldsData = pick(dto, ['recipe']);
+    const fieldsData = omit(dto, []);
 
     const permissao = resourceActionRequest.updateResource(
       'permissao',

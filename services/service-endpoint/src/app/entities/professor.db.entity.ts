@@ -1,9 +1,10 @@
 import { Professor } from '@academic-tasks/schemas';
-import { Column, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { v4 as uuidV4 } from 'uuid';
 import { DisciplinaProfessorDbEntity } from './disciplina-professor.db.entity';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 
+@Entity('professor')
 export class ProfessorDbEntity implements Professor {
   @PrimaryColumn({ name: 'id_professor' })
   id!: string;

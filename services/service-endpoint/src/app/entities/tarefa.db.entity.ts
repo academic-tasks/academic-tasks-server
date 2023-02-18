@@ -1,9 +1,10 @@
 import { Tarefa } from '@academic-tasks/schemas';
-import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { v4 as uuidV4 } from 'uuid';
 import { DisciplinaDbEntity } from './disciplina.db.entity';
 import { ListaDbEntity } from './lista.db.entity';
 
+@Entity('tarefa')
 export class TarefaDbEntity implements Tarefa {
   @PrimaryColumn({ name: 'id_tarefa' })
   id!: string;
@@ -16,14 +17,14 @@ export class TarefaDbEntity implements Tarefa {
 
   @Column({
     name: 'date_open_tarefa',
-    type: 'timestamp with local time zone',
+    type: 'timestamp with time zone',
     nullable: true,
   })
   dateOpen!: Date | null;
 
   @Column({
     name: 'date_close_tarefa',
-    type: 'timestamp with local time zone',
+    type: 'timestamp with time zone',
     nullable: true,
   })
   dateClose!: Date | null;

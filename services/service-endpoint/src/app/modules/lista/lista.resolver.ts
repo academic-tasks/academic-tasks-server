@@ -18,6 +18,7 @@ import { BindResourceActionRequest } from '../../../infrastructure/auth/decorato
 import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
+import { ListaMembroService } from '../lista-membro/lista-membro.service';
 import { ListaMembroType } from '../lista-membro/lista-membro.type';
 import {
   CreateListaInputType,
@@ -30,7 +31,10 @@ import { ListaType } from './lista.type';
 
 @Resolver(() => ListaType)
 export class ListaResolver {
-  constructor(private listaService: ListaService) {}
+  constructor(
+    private listaService: ListaService,
+    private listaMembroService: ListaMembroService,
+  ) {}
 
   // START: queries
 
@@ -65,7 +69,17 @@ export class ListaResolver {
     @ValidatedArgs('dto', UpdateListaInputZod)
     dto: UpdateListaInputType,
   ) {
-    return this.listaService.updateLista(resourceActionRequest, dto);
+    const listaResourceActionRequest =
+      await this.listaMembroService.getListaResourceActionRequestFromListaId(
+        resourceActionRequest,
+        dto.id,
+      );
+
+    return this.listaService.updateLista(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      dto,
+    );
   }
 
   @ResourceAuth(AuthMode.STRICT)
@@ -75,7 +89,17 @@ export class ListaResolver {
     @ValidatedArgs('dto', DeleteListaInputZod)
     dto: DeleteListaInputType,
   ) {
-    return this.listaService.deleteLista(resourceActionRequest, dto);
+    const listaResourceActionRequest =
+      await this.listaMembroService.getListaResourceActionRequestFromListaId(
+        resourceActionRequest,
+        dto.id,
+      );
+
+    return this.listaService.deleteLista(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      dto,
+    );
   }
   // END: mutations
 
@@ -109,7 +133,17 @@ export class ListaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() lista: ListaType,
   ): Promise<ListaType['title']> {
-    return this.listaService.getListaTitle(resourceActionRequest, lista.id);
+    const listaResourceActionRequest =
+      await this.listaMembroService.getListaResourceActionRequestFromListaId(
+        resourceActionRequest,
+        lista.id,
+      );
+
+    return this.listaService.getListaTitle(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      lista.id,
+    );
   }
 
   @ResourceAuth(AuthMode.OPTIONAL)
@@ -118,8 +152,15 @@ export class ListaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() lista: ListaType,
   ): Promise<ListaMembro[]> {
+    const listaResourceActionRequest =
+      await this.listaMembroService.getListaResourceActionRequestFromListaId(
+        resourceActionRequest,
+        lista.id,
+      );
+
     return this.listaService.getListaListaMembros(
       resourceActionRequest,
+      listaResourceActionRequest,
       lista.id,
     );
   }

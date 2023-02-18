@@ -1,16 +1,23 @@
 import {
-  AppAction,
   AppSubject,
   ICreateListaInput,
   IDeleteListaInput,
   IFindListaByIdInput,
   IUpdateListaInput,
+  ListaAction,
+  ListaSubject,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { omit } from 'lodash';
 import { IListaMembroRepository } from 'src/app/repositories/lista-membro.repository';
 import { IListaRepository } from 'src/app/repositories/lista.repository';
+import { ListaResourceActionRequest } from 'src/infrastructure/auth-lista/ListaResourceActionRequest';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
@@ -18,10 +25,14 @@ import {
   REPOSITORY_LISTA_MEMBRO,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { ListaDbEntity } from '../../entities/lista.db.entity';
+import { ListaMembroService } from '../lista-membro/lista-membro.service';
 
 @Injectable()
 export class ListaService {
   constructor(
+    @Inject(forwardRef(() => ListaMembroService))
+    private listaMembroService: ListaMembroService,
+
     @Inject(REPOSITORY_LISTA)
     private listaRepository: IListaRepository,
 
@@ -67,6 +78,7 @@ export class ListaService {
 
   async getListaGenericField<K extends keyof ListaDbEntity>(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     listaId: string,
     field: K,
   ): Promise<ListaDbEntity[K]> {
@@ -76,9 +88,9 @@ export class ListaService {
       { select: ['id', field] },
     );
 
-    resourceActionRequest.ensurePermission(
-      AppAction.READ,
-      subject(AppSubject.LISTA, lista),
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.READ,
+      subject(ListaSubject.CURRENT_LISTA, lista),
       field,
     );
 
@@ -120,18 +132,31 @@ export class ListaService {
 
   async getListaTitle(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     listaId: string,
   ): Promise<ListaDbEntity['title']> {
-    return this.getListaGenericField(resourceActionRequest, listaId, 'title');
+    return this.getListaGenericField(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      listaId,
+      'title',
+    );
   }
 
   async getListaListaMembros(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     listaId: string,
   ): Promise<ListaDbEntity['listaMembros']> {
     const lista = await this.findListaByIdSimple(
       resourceActionRequest,
       listaId,
+    );
+
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.READ,
+      subject(ListaSubject.CURRENT_LISTA, lista),
+      'listaMembros',
     );
 
     const listaMemboQuery = this.listaMembroRepository
@@ -149,29 +174,40 @@ export class ListaService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateListaInput,
   ) {
-    const fieldsData = pick(dto, []);
+    const fieldsData = omit(dto, []);
 
     const lista = resourceActionRequest.updateResource(
       AppSubject.LISTA,
       <ListaDbEntity>{},
       fieldsData,
-      AppAction.CREATE,
+      ListaAction.CREATE,
     );
 
     ListaDbEntity.setupInitialIds(lista);
 
     resourceActionRequest.ensurePermission(
-      AppAction.CREATE,
+      ListaAction.CREATE,
       subject(AppSubject.LISTA, lista),
     );
 
     await this.listaRepository.save(lista);
+
+    const user = resourceActionRequest.user;
+
+    if (user) {
+      await this.listaMembroService.addMembroToLista(
+        ResourceActionRequest.forSystemInternalActions(),
+        ListaResourceActionRequest.forSystemInternalActions(),
+        { listaId: lista.id, usuarioId: user.id },
+      );
+    }
 
     return this.findListaByIdSimple(resourceActionRequest, lista.id);
   }
 
   async updateLista(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     dto: IUpdateListaInput,
   ) {
     const { id } = dto;
@@ -180,15 +216,15 @@ export class ListaService {
 
     const fieldsData = omit(dto, ['id']);
 
-    const updatedLista = resourceActionRequest.updateResource(
-      AppSubject.LISTA,
+    const updatedLista = listaResourceActionRequest.updateResource(
+      ListaSubject.CURRENT_LISTA,
       <ListaDbEntity>lista,
       fieldsData,
     );
 
-    resourceActionRequest.ensurePermission(
-      AppAction.UPDATE,
-      subject(AppSubject.LISTA, lista),
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.UPDATE,
+      subject(ListaSubject.CURRENT_LISTA, lista),
     );
 
     await this.listaRepository.save(updatedLista);
@@ -198,13 +234,14 @@ export class ListaService {
 
   async deleteLista(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     dto: IDeleteListaInput,
   ) {
     const lista = await this.findListaByIdSimple(resourceActionRequest, dto.id);
 
-    resourceActionRequest.ensurePermission(
-      AppAction.DELETE,
-      subject(AppSubject.LISTA, lista),
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.DELETE,
+      subject(ListaSubject.CURRENT_LISTA, lista),
     );
 
     await this.listaRepository.delete(lista.id);

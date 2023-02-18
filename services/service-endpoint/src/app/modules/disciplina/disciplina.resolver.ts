@@ -136,10 +136,12 @@ export class DisciplinaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() disciplina: DisciplinaType,
   ): Promise<TurmaType> {
-    return this.disciplinaService.getDisciplinaTurma(
+    const turma = await this.disciplinaService.getDisciplinaTurma(
       resourceActionRequest,
       disciplina.id,
     );
+
+    return turma as TurmaType;
   }
 
   @ResourceAuth(AuthMode.OPTIONAL)
@@ -148,10 +150,12 @@ export class DisciplinaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() disciplina: DisciplinaType,
   ): Promise<TarefaType[]> {
-    return this.disciplinaService.getDisciplinaTarefas(
+    const tarefas = await this.disciplinaService.getDisciplinaTarefas(
       resourceActionRequest,
       disciplina.id,
     );
+
+    return tarefas as TarefaType[];
   }
 
   @ResourceAuth(AuthMode.OPTIONAL)
@@ -160,10 +164,12 @@ export class DisciplinaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() disciplina: DisciplinaType,
   ): Promise<ProfessorType[]> {
-    return this.disciplinaService.getDisciplinaProfesses(
+    const professores = await this.disciplinaService.getDisciplinaProfessores(
       resourceActionRequest,
       disciplina.id,
     );
+
+    return professores as ProfessorType[];
   }
 
   // END: fields resolvers

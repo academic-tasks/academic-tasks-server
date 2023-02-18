@@ -9,7 +9,7 @@ import {
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
 import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
 import { IProfessorRepository } from 'src/app/repositories/professor.repository';
 import { FindOneOptions } from 'typeorm';
@@ -166,7 +166,7 @@ export class ProfessorService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateProfessorInput,
   ) {
-    const fieldsData = pick(dto, []);
+    const fieldsData = omit(dto, []);
 
     const professor = resourceActionRequest.updateResource(
       AppSubject.PROFESSOR,

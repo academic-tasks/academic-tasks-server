@@ -1,6 +1,7 @@
 import { Disciplina } from '@academic-tasks/schemas';
 import {
   Column,
+  Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -12,6 +13,7 @@ import { ProfessorDbEntity } from './professor.db.entity';
 import { TarefaDbEntity } from './tarefa.db.entity';
 import { TurmaDbEntity } from './turma.db.entity';
 
+@Entity('disciplina')
 export class DisciplinaDbEntity implements Disciplina {
   @PrimaryColumn({ name: 'id_disciplina' })
   id!: string;

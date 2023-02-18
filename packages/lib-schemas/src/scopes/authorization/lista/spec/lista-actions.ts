@@ -1,5 +1,7 @@
-export enum AppAction {
+export enum ListaAction {
   MANAGE = "manage",
+
+  //
 
   CREATE = "create",
 
@@ -10,8 +12,10 @@ export enum AppAction {
   DELETE = "delete",
 }
 
-export const appActions = [
+export const listaActions = [
   "manage",
+
+  //
 
   "create",
 

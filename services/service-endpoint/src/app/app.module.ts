@@ -26,6 +26,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
 

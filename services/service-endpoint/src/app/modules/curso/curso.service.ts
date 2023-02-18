@@ -5,10 +5,11 @@ import {
   IDeleteCursoInput,
   IFindCursoByIdInput,
   IUpdateCursoInput,
+  Turma,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
 import { ITurmaRepository } from 'src/app/repositories/turma.repository';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
@@ -18,7 +19,6 @@ import {
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { CursoDbEntity } from '../../entities/curso.db.entity';
 import { ICursoRepository } from '../../repositories/curso.repository';
-import { TurmaType } from '../turma/turma.type';
 import { CursoType } from './curso.type';
 
 @Injectable()
@@ -100,7 +100,7 @@ export class CursoService {
   async getCursoTurmas(
     resourceActionRequest: ResourceActionRequest,
     cursoId: string,
-  ): Promise<TurmaType[]> {
+  ): Promise<Turma[]> {
     const curso = await this.findCursoByIdSimple(
       resourceActionRequest,
       cursoId,
@@ -121,7 +121,7 @@ export class CursoService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateCursoInput,
   ) {
-    const fieldsData = pick(dto, ['name']);
+    const fieldsData = omit(dto, []);
 
     const curso = resourceActionRequest.updateResource(
       'curso',

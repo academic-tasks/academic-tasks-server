@@ -1,9 +1,10 @@
 import { ListaMembro } from '@academic-tasks/schemas';
-import { JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { v4 as uuidV4 } from 'uuid';
 import { ListaDbEntity } from './lista.db.entity';
 import { UsuarioDbEntity } from './usuario.db.entity';
 
+@Entity('lista_membro')
 export class ListaMembroDbEntity implements ListaMembro {
   @PrimaryColumn({ name: 'id_lista_membro' })
   id!: string;

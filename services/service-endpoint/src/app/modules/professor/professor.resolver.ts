@@ -131,10 +131,12 @@ export class ProfessorResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() professor: ProfessorType,
   ): Promise<ProfessorType['disciplinas']> {
-    return this.professorService.getProfessorDisciplinas(
+    const disciplinas = await this.professorService.getProfessorDisciplinas(
       resourceActionRequest,
       professor.id,
     );
+
+    return disciplinas as DisciplinaType[];
   }
 
   // END: fields resolvers

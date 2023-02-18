@@ -19,6 +19,7 @@ import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAu
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
 import { CursoType } from '../curso/curso.type';
+import { DisciplinaType } from '../disciplina/disciplina.type';
 import {
   CreateTurmaInputType,
   DeleteTurmaInputType,
@@ -144,8 +145,13 @@ export class TurmaResolver {
   async curso(
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() turma: TurmaType,
-  ): Promise<TurmaType['curso']> {
-    return this.turmaService.getTurmaCurso(resourceActionRequest, turma.id);
+  ): Promise<CursoType> {
+    const curso = await this.turmaService.getTurmaCurso(
+      resourceActionRequest,
+      turma.id,
+    );
+
+    return curso as CursoType;
   }
 
   @ResourceAuth(AuthMode.OPTIONAL)
@@ -154,10 +160,12 @@ export class TurmaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() turma: TurmaType,
   ): Promise<TurmaType['disciplinas']> {
-    return this.turmaService.getTurmaDisciplinas(
+    const disciplinas = await this.turmaService.getTurmaDisciplinas(
       resourceActionRequest,
       turma.id,
     );
+
+    return disciplinas as DisciplinaType[];
   }
   // END: fields resolvers
 }

@@ -4,6 +4,9 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreateTarefaInputType implements ICreateTarefaInput {
   @Field(() => String)
+  listaId!: string;
+
+  @Field(() => String)
   disciplinaId!: string;
 
   @Field(() => String)

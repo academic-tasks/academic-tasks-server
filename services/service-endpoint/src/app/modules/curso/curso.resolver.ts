@@ -94,8 +94,13 @@ export class CursoResolver {
   async turmas(
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() curso: CursoType,
-  ): Promise<CursoType['turmas']> {
-    return this.cursoService.getCursoTurmas(resourceActionRequest, curso.id);
+  ): Promise<TurmaType[]> {
+    const turmas = await this.cursoService.getCursoTurmas(
+      resourceActionRequest,
+      curso.id,
+    );
+    
+    return turmas as TurmaType[];
   }
 
   // END: fields resolvers

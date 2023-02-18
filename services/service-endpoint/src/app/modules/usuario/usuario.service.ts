@@ -17,7 +17,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { castArray, omit, pick } from 'lodash';
+import { castArray, omit } from 'lodash';
 import { parralel } from 'src/app/helpers';
 import { IListaMembroRepository } from 'src/app/repositories/lista-membro.repository';
 import { KcClient } from 'src/infrastructure/auth/providers/kc-client';
@@ -225,7 +225,7 @@ export class UsuarioService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateUsuarioInput,
   ) {
-    const fieldsData = pick(dto, ['username']);
+    const fieldsData = omit(dto, []);
 
     const usuario = resourceActionRequest.updateResource(
       AppSubject.USUARIO,

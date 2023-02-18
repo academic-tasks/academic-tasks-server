@@ -1,5 +1,24 @@
+export enum AppSubject {
+  ALL = "all",
+
+  //
+
+  PERMISSAO = "permissao",
+  CARGO = "cargo",
+  USUARIO = "usuario",
+
+  CURSO = "curso",
+  TURMA = "turma",
+  PROFESSOR = "professor",
+  DISCIPLINA = "disciplina",
+
+  LISTA = "lista",
+  // TAREFA = "tarefa",
+}
+
 export const appSubjects = [
   "all",
+
   //
 
   "permissao",
@@ -10,6 +29,7 @@ export const appSubjects = [
   "turma",
   "professor",
   "disciplina",
+
   "lista",
-  "tarefa",
+  // "tarefa",
 ] as const;

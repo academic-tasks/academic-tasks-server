@@ -11,12 +11,14 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { ListaResourceActionRequest } from 'src/infrastructure/auth-lista/ListaResourceActionRequest';
 import { AuthMode } from '../../../infrastructure/auth/consts/AuthMode';
 import { BindResourceActionRequest } from '../../../infrastructure/auth/decorators/BindResourceActionRequest.decorator';
 import { ResourceAuth } from '../../../infrastructure/auth/decorators/ResourceAuth.decorator';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import { ValidatedArgs } from '../../../infrastructure/graphql/ValidatedArgs.decorator';
 import { DisciplinaType } from '../disciplina/disciplina.type';
+import { ListaMembroService } from '../lista-membro/lista-membro.service';
 import { ListaType } from '../lista/lista.type';
 import {
   CreateTarefaInputType,
@@ -29,7 +31,10 @@ import { TarefaType } from './tarefa.type';
 
 @Resolver(() => TarefaType)
 export class TarefaResolver {
-  constructor(private tarefaService: TarefaService) {}
+  constructor(
+    private tarefaService: TarefaService,
+    private listaMembroService: ListaMembroService,
+  ) {}
 
   // START: queries
 
@@ -40,7 +45,17 @@ export class TarefaResolver {
     @ValidatedArgs('dto', FindTarefaByIdInputZod)
     dto: FindTarefaByIdInputType,
   ) {
-    return this.tarefaService.findTarefaById(resourceActionRequest, dto);
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        dto.id,
+      );
+
+    return this.tarefaService.findTarefaById(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      dto,
+    );
   }
 
   // END: queries
@@ -54,7 +69,17 @@ export class TarefaResolver {
     @ValidatedArgs('dto', CreateTarefaInputZod)
     dto: CreateTarefaInputType,
   ) {
-    return this.tarefaService.createTarefa(resourceActionRequest, dto);
+    const listaResourceActionRequest =
+      await this.listaMembroService.getListaResourceActionRequestFromListaId(
+        resourceActionRequest,
+        dto.listaId,
+      );
+
+    return this.tarefaService.createTarefa(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      dto,
+    );
   }
 
   @ResourceAuth(AuthMode.STRICT)
@@ -64,7 +89,17 @@ export class TarefaResolver {
     @ValidatedArgs('dto', UpdateTarefaInputZod)
     dto: UpdateTarefaInputType,
   ) {
-    return this.tarefaService.updateTarefa(resourceActionRequest, dto);
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        dto.id,
+      );
+
+    return this.tarefaService.updateTarefa(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      dto,
+    );
   }
 
   @ResourceAuth(AuthMode.STRICT)
@@ -74,7 +109,17 @@ export class TarefaResolver {
     @ValidatedArgs('dto', DeleteTarefaInputZod)
     dto: DeleteTarefaInputType,
   ) {
-    return this.tarefaService.deleteTarefa(resourceActionRequest, dto);
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        dto.id,
+      );
+
+    return this.tarefaService.deleteTarefa(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      dto,
+    );
   }
   // END: mutations
 
@@ -108,7 +153,17 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<TarefaType['title']> {
-    return this.tarefaService.getTarefaTitle(resourceActionRequest, tarefa.id);
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
+    return this.tarefaService.getTarefaTitle(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      tarefa.id,
+    );
   }
 
   @ResourceAuth(AuthMode.OPTIONAL)
@@ -117,8 +172,15 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<TarefaType['description']> {
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
     return this.tarefaService.getTarefaDescription(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefa.id,
     );
   }
@@ -129,8 +191,15 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<TarefaType['dateOpen']> {
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
     return this.tarefaService.getTarefaDateOpen(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefa.id,
     );
   }
@@ -141,8 +210,15 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<TarefaType['dateClose']> {
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
     return this.tarefaService.getTarefaDateClose(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefa.id,
     );
   }
@@ -153,8 +229,15 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<TarefaType['submissionFormat']> {
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
     return this.tarefaService.getTarefaSubmissionFormat(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefa.id,
     );
   }
@@ -165,8 +248,15 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<ListaType> {
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
     const lista = await this.tarefaService.getTarefaLista(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefa.id,
     );
 
@@ -179,12 +269,43 @@ export class TarefaResolver {
     @BindResourceActionRequest() resourceActionRequest: ResourceActionRequest,
     @Parent() tarefa: TarefaType,
   ): Promise<DisciplinaType> {
+    const listaResourceActionRequest =
+      await this.getListaResourceActionRequestFromTarefaId(
+        resourceActionRequest,
+        tarefa.id,
+      );
+
     const disciplina = await this.tarefaService.getTarefaDisciplina(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefa.id,
     );
 
     return disciplina as DisciplinaType;
+  }
+
+  //
+
+  async getListaResourceActionRequestFromTarefaId(
+    resourceActionRequest: ResourceActionRequest,
+    tarefaId: string,
+  ): Promise<ListaResourceActionRequest> {
+    const tarefa = await this.tarefaService.findTarefaByIdSimple(
+      ResourceActionRequest.forSystemInternalActions(),
+      ListaResourceActionRequest.forSystemInternalActions(),
+      tarefaId,
+    );
+
+    const lista = await this.tarefaService.getTarefaLista(
+      ResourceActionRequest.forSystemInternalActions(),
+      ListaResourceActionRequest.forSystemInternalActions(),
+      tarefa.id,
+    );
+
+    return this.listaMembroService.getListaResourceActionRequestFromListaId(
+      resourceActionRequest,
+      lista.id,
+    );
   }
 
   // END: fields resolvers

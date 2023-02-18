@@ -1,12 +1,12 @@
 import {
-  AppAction,
-  AppSubject,
   Disciplina,
   ICreateTarefaInput,
   IDeleteTarefaInput,
   IFindTarefaByIdInput,
   IUpdateTarefaInput,
   Lista,
+  ListaAction,
+  ListaSubject,
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
 import {
@@ -15,10 +15,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
+import { DisciplinaDbEntity } from 'src/app/entities/disciplina.db.entity';
+import { ListaDbEntity } from 'src/app/entities/lista.db.entity';
 import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
 import { IListaRepository } from 'src/app/repositories/lista.repository';
 import { ITarefaRepository } from 'src/app/repositories/tarefa.repository';
+import { ListaResourceActionRequest } from 'src/infrastructure/auth-lista/ListaResourceActionRequest';
 import { FindOneOptions } from 'typeorm';
 import { ResourceActionRequest } from '../../../infrastructure/auth/ResourceActionRequest';
 import {
@@ -27,10 +30,15 @@ import {
   REPOSITORY_TAREFA,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { TarefaDbEntity } from '../../entities/tarefa.db.entity';
+import { DisciplinaService } from '../disciplina/disciplina.service';
+import { ListaService } from '../lista/lista.service';
 
 @Injectable()
 export class TarefaService {
   constructor(
+    private listaService: ListaService,
+    private disciplinaService: DisciplinaService,
+
     @Inject(REPOSITORY_TAREFA)
     private tarefaRepository: ITarefaRepository,
 
@@ -43,6 +51,7 @@ export class TarefaService {
 
   async findTarefaById(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     dto: IFindTarefaByIdInput,
     options: FindOneOptions<TarefaDbEntity> | null = null,
   ) {
@@ -63,34 +72,40 @@ export class TarefaService {
       ...options,
     });
 
-    return resourceActionRequest.readResource(AppSubject.TAREFA, tarefa);
+    return listaResourceActionRequest.readResource(ListaSubject.TAREFA, tarefa);
   }
 
   async findTarefaByIdSimple(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
+
     tarefaId: string,
   ): Promise<Pick<TarefaDbEntity, 'id'>> {
-    const tarefa = await this.findTarefaById(resourceActionRequest, {
-      id: tarefaId,
-    });
+    const tarefa = await this.findTarefaById(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      { id: tarefaId },
+    );
 
     return tarefa as Pick<TarefaDbEntity, 'id'>;
   }
 
   async getTarefaGenericField<K extends keyof TarefaDbEntity>(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
     field: K,
   ): Promise<TarefaDbEntity[K]> {
     const tarefa = await this.findTarefaById(
       resourceActionRequest,
+      listaResourceActionRequest,
       { id: tarefaId },
       { select: ['id', field] },
     );
 
-    resourceActionRequest.ensurePermission(
-      AppAction.READ,
-      subject(AppSubject.TAREFA, tarefa),
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.READ,
+      subject(ListaSubject.TAREFA, tarefa),
       field,
     );
 
@@ -132,17 +147,25 @@ export class TarefaService {
 
   async getTarefaTitle(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<TarefaDbEntity['title']> {
-    return this.getTarefaGenericField(resourceActionRequest, tarefaId, 'title');
+    return this.getTarefaGenericField(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      tarefaId,
+      'title',
+    );
   }
 
   async getTarefaDescription(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<TarefaDbEntity['description']> {
     return this.getTarefaGenericField(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefaId,
       'description',
     );
@@ -150,10 +173,12 @@ export class TarefaService {
 
   async getTarefaDateOpen(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<TarefaDbEntity['dateOpen']> {
     return this.getTarefaGenericField(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefaId,
       'dateOpen',
     );
@@ -161,10 +186,12 @@ export class TarefaService {
 
   async getTarefaDateClose(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<TarefaDbEntity['dateClose']> {
     return this.getTarefaGenericField(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefaId,
       'dateClose',
     );
@@ -172,10 +199,12 @@ export class TarefaService {
 
   async getTarefaSubmissionFormat(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<TarefaDbEntity['submissionFormat']> {
     return this.getTarefaGenericField(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefaId,
       'submissionFormat',
     );
@@ -183,10 +212,12 @@ export class TarefaService {
 
   async getTarefaLista(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<Lista> {
     const tarefa = await this.findTarefaByIdSimple(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefaId,
     );
 
@@ -208,10 +239,12 @@ export class TarefaService {
 
   async getTarefaDisciplina(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     tarefaId: string,
   ): Promise<Disciplina> {
     const tarefa = await this.findTarefaByIdSimple(
       resourceActionRequest,
+      listaResourceActionRequest,
       tarefaId,
     );
 
@@ -222,7 +255,6 @@ export class TarefaService {
       .where('tarefa.id_tarefa = :id', { id: tarefa.id });
 
     const result = await disciplinaQuery.getOne();
-    // const result = await relationQuery.getMany();
 
     if (!result) {
       throw new InternalServerErrorException();
@@ -233,67 +265,97 @@ export class TarefaService {
 
   async createTarefa(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     dto: ICreateTarefaInput,
   ) {
-    const fieldsData = pick(dto, []);
+    const fieldsData = omit(dto, ['listaId', 'disciplinaId']);
 
-    const tarefa = resourceActionRequest.updateResource(
-      AppSubject.TAREFA,
+    const lista = await this.listaService.findListaByIdSimple(
+      resourceActionRequest,
+      dto.listaId,
+    );
+
+    const disciplina = await this.disciplinaService.findDisciplinaByIdSimple(
+      resourceActionRequest,
+      dto.disciplinaId,
+    );
+
+    const tarefa = listaResourceActionRequest.updateResource(
+      ListaSubject.TAREFA,
       <TarefaDbEntity>{},
       fieldsData,
-      AppAction.CREATE,
+      ListaAction.CREATE,
     );
 
     TarefaDbEntity.setupInitialIds(tarefa);
 
-    resourceActionRequest.ensurePermission(
-      AppAction.CREATE,
-      subject(AppSubject.TAREFA, tarefa),
+    tarefa.lista = <ListaDbEntity>{ id: lista.id };
+    tarefa.disciplina = <DisciplinaDbEntity>{ id: disciplina.id };
+
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.CREATE,
+      subject(ListaSubject.TAREFA, tarefa),
     );
 
     await this.tarefaRepository.save(tarefa);
 
-    return this.findTarefaByIdSimple(resourceActionRequest, tarefa.id);
+    return this.findTarefaByIdSimple(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      tarefa.id,
+    );
   }
 
   async updateTarefa(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
     dto: IUpdateTarefaInput,
   ) {
     const { id } = dto;
 
-    const tarefa = await this.findTarefaByIdSimple(resourceActionRequest, id);
+    const tarefa = await this.findTarefaByIdSimple(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      id,
+    );
 
     const fieldsData = omit(dto, ['id']);
 
-    const updatedTarefa = resourceActionRequest.updateResource(
-      AppSubject.TAREFA,
+    const updatedTarefa = listaResourceActionRequest.updateResource(
+      ListaSubject.TAREFA,
       <TarefaDbEntity>tarefa,
       fieldsData,
     );
 
-    resourceActionRequest.ensurePermission(
-      AppAction.UPDATE,
-      subject(AppSubject.TAREFA, tarefa),
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.UPDATE,
+      subject(ListaSubject.TAREFA, tarefa),
     );
 
     await this.tarefaRepository.save(updatedTarefa);
 
-    return this.findTarefaByIdSimple(resourceActionRequest, tarefa.id);
+    return this.findTarefaByIdSimple(
+      resourceActionRequest,
+      listaResourceActionRequest,
+      tarefa.id,
+    );
   }
 
   async deleteTarefa(
     resourceActionRequest: ResourceActionRequest,
+    listaResourceActionRequest: ListaResourceActionRequest,
+
     dto: IDeleteTarefaInput,
   ) {
     const tarefa = await this.findTarefaByIdSimple(
       resourceActionRequest,
+      listaResourceActionRequest,
       dto.id,
     );
 
-    resourceActionRequest.ensurePermission(
-      AppAction.DELETE,
-      subject(AppSubject.TAREFA, tarefa),
+    listaResourceActionRequest.ensurePermission(
+      ListaAction.DELETE,
+      subject(ListaSubject.TAREFA, tarefa),
     );
 
     await this.tarefaRepository.delete(tarefa.id);

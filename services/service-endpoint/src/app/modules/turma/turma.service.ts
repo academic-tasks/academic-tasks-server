@@ -15,7 +15,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
+import { CursoDbEntity } from 'src/app/entities/curso.db.entity';
 import { ICursoRepository } from 'src/app/repositories/curso.repository';
 import { IDisciplinaRepository } from 'src/app/repositories/disciplina.repository';
 import { ITurmaRepository } from 'src/app/repositories/turma.repository';
@@ -27,10 +28,13 @@ import {
   REPOSITORY_TURMA,
 } from '../../../infrastructure/database/constants/REPOSITORIES.const';
 import { TurmaDbEntity } from '../../entities/turma.db.entity';
+import { CursoService } from '../curso/curso.service';
 
 @Injectable()
 export class TurmaService {
   constructor(
+    private cursoService: CursoService,
+
     @Inject(REPOSITORY_TURMA)
     private turmaRepository: ITurmaRepository,
 
@@ -208,7 +212,12 @@ export class TurmaService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateTurmaInput,
   ) {
-    const fieldsData = pick(dto, []);
+    const fieldsData = omit(dto, ['cursoId']);
+
+    const curso = await this.cursoService.findCursoByIdSimple(
+      resourceActionRequest,
+      dto.cursoId,
+    );
 
     const turma = resourceActionRequest.updateResource(
       AppSubject.TURMA,
@@ -218,6 +227,8 @@ export class TurmaService {
     );
 
     TurmaDbEntity.setupInitialIds(turma);
+
+    turma.curso = <CursoDbEntity>{ id: curso.id };
 
     resourceActionRequest.ensurePermission(
       AppAction.CREATE,

@@ -11,7 +11,7 @@ import {
 } from '@academic-tasks/schemas';
 import { subject } from '@casl/ability';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { omit, pick } from 'lodash';
+import { omit } from 'lodash';
 import { parralel } from 'src/app/helpers';
 import { ICargoRepository } from 'src/app/repositories/cargo.repository';
 import { FindOneOptions } from 'typeorm';
@@ -201,7 +201,7 @@ export class CargoService {
     resourceActionRequest: ResourceActionRequest,
     dto: ICreateCargoInput,
   ) {
-    const fieldsData = pick(dto, []);
+    const fieldsData = omit(dto, []);
 
     const cargo = resourceActionRequest.updateResource(
       AppSubject.CARGO,
