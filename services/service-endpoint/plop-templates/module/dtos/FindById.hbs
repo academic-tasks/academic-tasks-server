@@ -1,8 +1,0 @@
-import { IFind{{ pascalCase name }}ByIdInput } from '@academic-tasks/schemas';
-import { Field, InputType } from '@nestjs/graphql';
-
-@InputType()
-export class Find{{ pascalCase name }}ByIdInputType implements IFind{{ pascalCase name }}ByIdInput {
-  @Field()
-  id!: string;
-}

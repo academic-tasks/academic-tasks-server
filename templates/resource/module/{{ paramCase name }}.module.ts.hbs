@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
+import { DatabaseModule } from '../../../database/database.module';
+import { {{ pascalCase name }}Resolver } from './{{ paramCase name }}.resolver';
+import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
+
+@Module({
+  imports: [DatabaseModule, MeiliSearchModule],
+  exports: [{{ pascalCase name }}Service],
+  providers: [{{ pascalCase name }}Service, {{ pascalCase name }}Resolver],
+})
+export class {{ pascalCase name }}Module {}

@@ -1,0 +1,114 @@
+import {
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { AppContext } from 'src/app-context/AppContext';
+import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import {
+  GenericListInputType,
+  GenericListInputZod,
+} from 'src/meilisearch/dtos';
+import { ValidatedArgs } from 'src/graphql/ValidatedArgs.decorator';
+import { {{ pascalCase name }}Service } from './{{ paramCase name }}.service';
+import { {{ pascalCase name }}Type } from './{{ paramCase name }}.type';
+import {
+  Create{{ pascalCase name }}InputType,
+  Create{{ pascalCase name }}InputZod,
+  Delete{{ pascalCase name }}InputType,
+  Delete{{ pascalCase name }}InputZod,
+  Find{{ pascalCase name }}ByIdInputType,
+  Find{{ pascalCase name }}ByIdInputZod,
+  List{{ pascalCase name }}ResultType,
+  Update{{ pascalCase name }}InputType,
+  Update{{ pascalCase name }}InputZod,
+} from './dtos';
+
+
+@Resolver(() => {{ pascalCase name }}Type)
+export class {{ pascalCase name }}Resolver {
+  constructor(private {{ camelCase name }}Service: {{ pascalCase name }}Service) {}
+
+  // START: queries
+
+  @Query(() => {{ pascalCase name }}Type)
+  async find{{ pascalCase name }}ById(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', Find{{ pascalCase name }}ByIdInputZod)
+    dto: Find{{ pascalCase name }}ByIdInputType,
+  ) {
+    return this.{{ camelCase name }}Service.find{{ pascalCase name }}ByIdStrict(appContext, dto);
+  }
+
+
+  @Query(() => List{{ pascalCase name }}ResultType)
+  async list{{ pascalCase name }}(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', GenericListInputZod)
+    dto: GenericListInputType,
+  ) {
+    return this.{{ camelCase name }}Service.list{{ pascalCase name }}(appContext, dto);
+  }
+
+  // END: queries
+
+  // START: mutations
+
+  @Mutation(() => {{ pascalCase name }}Type)
+  async create{{ pascalCase name }}(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', Create{{ pascalCase name }}InputZod)
+    dto: Create{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.create{{ pascalCase name }}(appContext, dto);
+  }
+
+  @Mutation(() => {{ pascalCase name }}Type)
+  async update{{ pascalCase name }}(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', Update{{ pascalCase name }}InputZod)
+    dto: Update{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.update{{ pascalCase name }}(appContext, dto);
+  }
+
+  @Mutation(() => Boolean)
+  async delete{{ pascalCase name }}(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', Delete{{ pascalCase name }}InputZod)
+    dto: Delete{{ pascalCase name }}InputType,
+  ) {
+    return this.{{ camelCase name }}Service.delete{{ pascalCase name }}(appContext, dto);
+  }
+
+  // END: mutations
+
+  // START: fields resolvers
+
+  /*
+  @ResolveField('genericField', () => String)
+  async genericField(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @Parent()
+    parent: {{ pascalCase name }}Type,
+  ) {
+    return this.{{ camelCase name }}Service.get{{ pascalCase name }}GenericField(appContext, parent.id);
+  }
+  */
+
+  // END: fields resolvers
+}

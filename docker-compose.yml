@@ -1,0 +1,54 @@
+services:
+  server:
+    image: node:18
+    user: node
+    command: sh -c "tail -f /dev/null"
+    container_name: academic-tasks-server
+    # restart: always
+    working_dir: /code
+    depends_on:
+      - server-db
+      - server-meilisearch
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - .:/code
+    networks:
+      - academic-tasks-net
+
+  server-db:
+    image: bitnami/postgresql:15
+    container_name: academic-tasks-db
+    # restart: always
+    volumes:
+      - 'academic-tasks-db-data:/bitnami/postgresql'
+      - './volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
+    env_file:
+      - .db.env
+    networks:
+      - academic-tasks-net
+    ports:
+      - 5432:5432
+
+  server-meilisearch:
+    image: getmeili/meilisearch:v1.0.2
+    container_name: academic-tasks-meilisearch
+    # restart: always
+    ports:
+      - 7700:7700
+    env_file:
+      - .meilisearch.env
+    volumes:
+      - 'academic-tasks-meilisearch-data:/meili_data'
+    networks:
+      - academic-tasks-net
+
+
+networks:
+  academic-tasks-net:
+
+volumes:
+  academic-tasks-db-data:
+  academic-tasks-meilisearch-data:
