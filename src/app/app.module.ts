@@ -6,6 +6,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
 import { AuthModule } from '../auth/auth.module';
 import { IS_PRODUCTION_MODE } from '../common/constants/IS_PRODUCTION_MODE.const';
@@ -17,12 +18,18 @@ import { AppResolver } from './app.resolver';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+
+    //
 
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
     }),
+
+    //
 
     ScheduleModule.forRoot(),
 
@@ -46,6 +53,16 @@ import { AppResolver } from './app.resolver';
       }),
 
       // resolvers: { JSON: GraphQLJSON },
+
+      formatError: (error: GraphQLError) => {
+        const graphQLFormattedError: GraphQLFormattedError = {
+          message:
+            (<any>error)?.extensions?.exception?.response?.message ||
+            error?.message,
+        };
+
+        return graphQLFormattedError;
+      },
     }),
 
     //
@@ -63,7 +80,10 @@ import { AppResolver } from './app.resolver';
     //
   ],
 
-  controllers: [AppController],
+  controllers: [
+    //
+    AppController,
+  ],
 
   providers: [
     {

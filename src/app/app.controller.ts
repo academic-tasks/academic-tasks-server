@@ -2,10 +2,11 @@ import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  @Get()
+  @Get('/')
   index() {
     return {
-      name: 'up',
+      name: '@academic-tasks/server',
+      status: 'up',
     };
   }
 }
