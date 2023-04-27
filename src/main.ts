@@ -3,7 +3,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import compression from 'compression';
 import 'reflect-metadata';
 import { AppModule } from './app/app.module';
-import { IS_PRODUCTION_MODE } from './common/constants/IS_PRODUCTION_MODE.const';
 import { getHelmet } from './common/fixtures';
 
 async function bootstrap() {
@@ -16,7 +15,10 @@ async function bootstrap() {
   const helmet = await getHelmet();
 
   app.use(
-    helmet({ contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false }),
+    helmet({
+      // contentSecurityPolicy: IS_PRODUCTION_MODE ? undefined : false,
+      contentSecurityPolicy: false,
+    }),
   );
 
   app.use(compression());

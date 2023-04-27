@@ -1,3 +1,4 @@
+import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -35,6 +36,14 @@ import { AppResolver } from './app.resolver';
 
       debug: !IS_PRODUCTION_MODE,
       autoSchemaFile: true,
+
+      cache: new InMemoryLRUCache({
+        // ~100MiB
+        maxSize: Math.pow(2, 20) * 100,
+
+        // 5 minutes (in milliseconds)
+        ttl: 300_000,
+      }),
 
       // resolvers: { JSON: GraphQLJSON },
     }),
