@@ -20,7 +20,7 @@ export class AccessTokenStrategy extends PassportStrategy(
     }
 
     const resourceActionRequest =
-      await this.authService.getUsuarioResourceActionRequest(user.id);
+      await this.authService.getUserResourceActionRequest(user.id);
 
     return resourceActionRequest;
   }

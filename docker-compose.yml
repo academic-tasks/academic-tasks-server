@@ -19,12 +19,12 @@ services:
       - academic-tasks-net
 
   server-db:
-    image: bitnami/postgresql:15
+    image: postgres:15-alpine
     container_name: academic-tasks-db
-    # restart: always
+    restart: always
     volumes:
-      - 'academic-tasks-db-data:/bitnami/postgresql'
-      - './volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
+      - 'academic-tasks-db-data:/var/lib/postgresql/data'
+      # - './volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
     env_file:
       - .db.env
     networks:
@@ -35,7 +35,7 @@ services:
   server-meilisearch:
     image: getmeili/meilisearch:v1.0.2
     container_name: academic-tasks-meilisearch
-    # restart: always
+    restart: always
     ports:
       - 7700:7700
     env_file:

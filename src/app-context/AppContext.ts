@@ -22,7 +22,7 @@ export class AppContext {
             const user = resourceActionRequest.user;
 
             if (user) {
-              await queryRunner.query(`set local role authenticated;`);
+              await queryRunner.query(`set local role actor_authenticated;`);
 
               await queryRunner.query(
                 `set local "request.auth.role" to 'authenticated';`,
@@ -37,12 +37,13 @@ export class AppContext {
           }
 
           case ResourceActionRequestRole.SYSTEM: {
+            await queryRunner.query(`set local role actor_admin;`);
             break;
           }
 
           case ResourceActionRequestRole.ANON:
           default: {
-            await queryRunner.manager.query(`set local role anon;`);
+            await queryRunner.manager.query(`set local role actor_anon;`);
 
             await queryRunner.manager.query(
               `set local "request.auth.role" to 'anon';`,

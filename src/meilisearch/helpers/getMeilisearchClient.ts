@@ -9,6 +9,7 @@ export const getMeiliSearchClient = async () => {
   const client = new MeiliSearch({
     host: config.host,
     apiKey: config.apiKey,
+    
   });
 
   for (const meilisearchIndexDefinition of MeilisearchIndexDefinitions) {

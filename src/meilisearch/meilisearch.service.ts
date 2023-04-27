@@ -7,8 +7,8 @@ import { ResourceActionRequest } from 'src/auth/interfaces/ResourceActionRequest
 import { DATA_SOURCE } from 'src/database/constants/DATA_SOURCE';
 import { MEILISEARCH_CLIENT } from 'src/meilisearch/constants/MEILISEARCH_CLIENT.const';
 import { DataSource } from 'typeorm';
-import { DeletedRowsLogDbEntity } from '../database/entities/deleted-rows-log.db';
-import { getDeletedRowsLogRepository } from '../database/repositories/deleted-rows-log.repository';
+import { DeletedRowLogDbEntity } from '../database/entities/deleted-row-log.db.entity';
+import { getDeletedRowLogRepository } from '../database/repositories/deleted-row-log.repository';
 import { MeilisearchIndexDefinitions } from './config/MeiliSearchIndexDefinitions';
 import { MEILISEARCH_SYNC_RECORDS_INTERVAL } from './constants/MEILISEARCH_SYNC_RECORDS_INTERVAL';
 import { IGenericListInput, IGenericSearchResult } from './dtos';
@@ -83,18 +83,18 @@ export class MeiliSearchService {
           const repository = getRepository(entityManager);
           const tableTame = repository.metadata.tableName;
 
-          const deletedRowsLogRepository =
-            getDeletedRowsLogRepository(entityManager);
+          const deletedRowLogRepository =
+            getDeletedRowLogRepository(entityManager);
 
-          const records = await deletedRowsLogRepository
-            .createQueryBuilder('deleted_rows_log')
-            .where('deleted_rows_log.table_name = :tableName', {
+          const records = await deletedRowLogRepository
+            .createQueryBuilder('deleted_row_log')
+            .where('deleted_row_log.table_name = :tableName', {
               tableName: tableTame,
             })
-            .andWhere('deleted_rows_log.meilisearch_synced = :synced', {
+            .andWhere('deleted_row_log.meilisearch_synced = :synced', {
               synced: false,
             })
-            .select('deleted_rows_log')
+            .select('deleted_row_log')
             .limit(50)
             .getMany();
 
@@ -103,7 +103,7 @@ export class MeiliSearchService {
       };
 
       for (const indexDefinition of MeilisearchIndexDefinitions) {
-        let records: DeletedRowsLogDbEntity[] = [];
+        let records: DeletedRowLogDbEntity[] = [];
 
         do {
           records = await getDeletedRowLogsForIndexDefinition(indexDefinition);
@@ -201,17 +201,16 @@ export class MeiliSearchService {
         .waitForTask(task.taskUid);
 
       await this.appContext.databaseRun(async ({ entityManager }) => {
-        const deletedRowsRepository =
-          getDeletedRowsLogRepository(entityManager);
+        const deletedRowRepository = getDeletedRowLogRepository(entityManager);
 
-        // await deletedRowsRepository
+        // await deletedRowRepository
         //   .createQueryBuilder()
         //   .update()
         //   .set({ meilisearchSynced: true })
         //   .whereInIds(records.map((r) => r.id))
         //   .execute();
 
-        await deletedRowsRepository
+        await deletedRowRepository
           .createQueryBuilder()
           .delete()
           .whereInIds(records.map((r) => r.id))

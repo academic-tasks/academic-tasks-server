@@ -1,7 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
-import { UsuarioType } from '../app/modules/usuario/usuario.type';
 import { AppContext } from '../app-context/AppContext';
 import { ResolveAppContext } from '../app-context/ResolveAppContext';
+import { UserType } from '../app/modules/user/user.type';
 import { AuthService } from './auth.service';
 
 @Resolver()
@@ -10,7 +10,7 @@ export class AuthResolver {
 
   // START: queries
 
-  @Query(() => UsuarioType)
+  @Query(() => UserType)
   async getAuthedUser(
     @ResolveAppContext()
     appContext: AppContext,

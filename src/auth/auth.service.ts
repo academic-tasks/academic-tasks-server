@@ -1,17 +1,17 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Client } from 'openid-client';
 import { DataSource } from 'typeorm';
-import { UsuarioService } from '../app/modules/usuario/usuario.service';
 import { AppContext } from '../app-context/AppContext';
+import { UserService } from '../app/modules/user/user.service';
 import { IS_PRODUCTION_MODE } from '../common/constants/IS_PRODUCTION_MODE.const';
-import { OPENID_CLIENT } from './constants/OPENID_CLIENT.const';
 import { DATA_SOURCE } from '../database/constants/DATA_SOURCE';
+import { OPENID_CLIENT } from './constants/OPENID_CLIENT.const';
 import { ResourceActionRequest } from './interfaces/ResourceActionRequest';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usuarioService: UsuarioService,
+    private userService: UserService,
 
     @Inject(OPENID_CLIENT)
     private openIDClient: Client,
@@ -29,7 +29,7 @@ export class AuthService {
       throw new BadRequestException("You're not logged in");
     }
 
-    return this.usuarioService.findUsuarioByIdStrictSimple(appContext, user.id);
+    return this.userService.findUserByIdStrictSimple(appContext, user.id);
   }
 
   async validateAccessToken(accessToken?: string | any) {
@@ -45,7 +45,7 @@ export class AuthService {
 
       const userinfo = await this.openIDClient.userinfo(accessToken);
 
-      const user = await this.usuarioService.getUsuarioFromKeycloakId(
+      const user = await this.userService.getUserFromKeycloakId(
         appContext,
         userinfo.sub,
       );
@@ -60,7 +60,7 @@ export class AuthService {
     }
   }
 
-  async getUsuarioResourceActionRequest(userId: number) {
+  async getUserResourceActionRequest(userId: number) {
     return ResourceActionRequest.forUser(userId);
   }
 }

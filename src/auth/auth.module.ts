@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { PassportModule } from '@nestjs/passport';
-import { UsuarioModule } from '../app/modules/usuario/usuario.module';
+import { UserModule } from '../app/modules/user/user.module';
 import { databaseProviders } from '../database/providers/database.providers';
 import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
@@ -12,7 +12,7 @@ import { AccessTokenStrategy } from './strategies/access-token.strategy.service'
 
 @Module({
   imports: [
-    UsuarioModule,
+    UserModule,
     PassportModule.register({ defaultStrategy: 'access-token' }),
   ],
 
