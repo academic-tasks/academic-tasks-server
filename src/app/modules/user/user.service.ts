@@ -148,15 +148,19 @@ export class UserService {
       await userRepository.save(newUser);
 
       if (!hasUsers) {
-        const role = await roleRepository.findOne({
-          where: { slug: 'dape' },
-        });
+        const FIRST_SYSTEM_USER_ROLES = ['admin'];
 
-        if (role) {
-          const userHasRole = userHasRoleRepository.create();
-          userHasRole.user = newUser;
-          userHasRole.role = role;
-          await userHasRoleRepository.save(userHasRole);
+        for (const roleSlug of FIRST_SYSTEM_USER_ROLES) {
+          const role = await roleRepository.findOne({
+            where: { slug: roleSlug },
+          });
+
+          if (role) {
+            const userHasRole = userHasRoleRepository.create();
+            userHasRole.user = newUser;
+            userHasRole.role = role;
+            await userHasRoleRepository.save(userHasRole);
+          }
         }
       }
 
