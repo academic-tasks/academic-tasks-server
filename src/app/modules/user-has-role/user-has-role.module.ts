@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { MeiliSearchModule } from 'src/meilisearch/meilisearch.module';
-import { DatabaseModule } from '../../../database/database.module';
+import { MeiliSearchModule } from 'src/app/meilisearch/meilisearch.module';
+import { DatabaseModule } from '../../database/database.module';
 import { RoleModule } from '../role/role.module';
 import { UserHasRoleResolver } from './user-has-role.resolver';
 import { UserHasRoleService } from './user-has-role.service';

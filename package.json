@@ -13,8 +13,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "typeorm": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm",
-    "typeorm-db-migration": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm -d src/database/data-sources/app-migration.data-source.ts",
-    "typeorm-db-seed": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm -d src/database/data-sources/seed.data-source.ts",
+    "typeorm-db-migration": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm -d src/app/database/data-sources/app-migration.data-source.ts",
+    "typeorm-db-seed": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm -d src/app/database/data-sources/seed.data-source.ts",
     "typeorm:entity": "npm run typeorm entity:create",
     "typeorm:generate": "npm run typeorm migration:generate",
     "typeorm:create": "npm run typeorm migration:create",
@@ -25,6 +25,7 @@
     "seed:rollback": "npm run typeorm-db-seed migration:revert"
   },
   "dependencies": {
+    "@keycloak/keycloak-admin-client": "^20.0.5",
     "@nestjs/apollo": "^10.1.7",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",

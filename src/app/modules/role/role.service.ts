@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { AppContext } from 'src/app-context/AppContext';
+import { AppContext } from 'src/app/app-context/services/AppContext';
+import { INDEX_ROLE } from 'src/app/meilisearch/constants/meilisearch-tokens';
+import { IGenericListInput } from 'src/app/meilisearch/dtos';
+import { MeiliSearchService } from 'src/app/meilisearch/meilisearch.service';
 import { parralelMap } from 'src/common/utils/parralel-map';
-import { INDEX_ROLE } from 'src/meilisearch/constants/meilisearch-tokens';
-import { IGenericListInput } from 'src/meilisearch/dtos';
-import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
-import { RoleDbEntity } from '../../../database/entities/role.db.entity';
-import { getRoleRepository } from '../../../database/repositories/role.repository';
+import { RoleDbEntity } from '../../database/entities/role.db.entity';
+import { getRoleRepository } from '../../database/repositories/role.repository';
 import {
   ICreateRoleInput,
   IDeleteRoleInput,
@@ -134,6 +138,7 @@ export class RoleService {
       const roleRepository = getRoleRepository(entityManager);
 
       const role = { ...fieldsData };
+
       await roleRepository.save(role);
 
       return <RoleDbEntity>role;
@@ -143,39 +148,52 @@ export class RoleService {
   }
 
   async updateRole(appContext: AppContext, dto: IUpdateRoleInput) {
-    const { id } = dto;
-
-    const role = await this.findRoleByIdStrictSimple(appContext, id);
+    const role = await this.findRoleByIdStrictSimple(appContext, dto.id);
 
     const fieldsData = omit(dto, ['id']);
 
-    await appContext.databaseRun(async ({ entityManager }) => {
+    const result = await appContext.databaseRun(async ({ entityManager }) => {
       const roleRepository = getRoleRepository(entityManager);
 
-      const updatedRole = { ...role, ...fieldsData };
-      await roleRepository.save(updatedRole);
+      const updatedRole = <RoleDbEntity>{
+        ...role,
+        ...fieldsData,
+      };
 
-      return <RoleDbEntity>updatedRole;
+      const result = await roleRepository
+        .createQueryBuilder('role')
+        .update()
+        .set(updatedRole)
+        .where('role.id = :id', { id: role.id })
+        .execute();
+
+      return result;
     });
+
+    if (result.affected === 0) {
+      throw new ForbiddenException();
+    }
 
     return this.findRoleByIdStrictSimple(appContext, role.id);
   }
 
   async deleteRole(appContext: AppContext, dto: IDeleteRoleInput) {
-    const { id } = dto;
-
-    const role = await this.findRoleByIdStrictSimple(appContext, id);
+    const role = await this.findRoleByIdStrictSimple(appContext, dto.id);
 
     return appContext.databaseRun(async ({ entityManager }) => {
       const roleRepository = getRoleRepository(entityManager);
 
       try {
-        await roleRepository.delete(role.id);
+        const result = await roleRepository.delete(role.id);
 
-        return true;
-      } catch (error) {
-        return false;
-      }
+        const rowsAffected = result.affected ?? 0;
+
+        if (rowsAffected > 0) {
+          return true;
+        }
+      } catch (error) {}
+
+      return false;
     });
   }
 }

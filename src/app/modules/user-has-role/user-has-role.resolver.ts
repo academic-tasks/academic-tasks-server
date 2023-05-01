@@ -1,7 +1,7 @@
 import { Mutation, Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
-import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
+import { ResolveAppContext } from 'src/app/app-context/providers/ResolveAppContext';
+import { AppContext } from 'src/app/app-context/services/AppContext';
+import { ValidatedArgs } from '../../graphql/ValidatedArgs.decorator';
 import { RoleType } from '../role/role.type';
 import { UserType } from '../user/user.type';
 import {

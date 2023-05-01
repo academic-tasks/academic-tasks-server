@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { GenericSearchResultType } from 'src/meilisearch/dtos';
+import { GenericSearchResultType } from 'src/app/meilisearch/dtos';
 import { RoleType } from '../role.type';
 
 @ObjectType('ListRoleResult')

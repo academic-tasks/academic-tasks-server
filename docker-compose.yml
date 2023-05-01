@@ -4,7 +4,6 @@ services:
     user: node
     command: sh -c "tail -f /dev/null"
     container_name: academic-tasks-server
-    # restart: always
     working_dir: /code
     depends_on:
       - server-db
@@ -21,10 +20,9 @@ services:
   server-db:
     image: postgres:15-alpine
     container_name: academic-tasks-db
-    restart: always
     volumes:
       - 'academic-tasks-db-data:/var/lib/postgresql/data'
-      # - './volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
+      - './volumes/db/initdb.d:/docker-entrypoint-initdb.d'
     env_file:
       - .db.env
     networks:
@@ -35,7 +33,6 @@ services:
   server-meilisearch:
     image: getmeili/meilisearch:v1.0.2
     container_name: academic-tasks-meilisearch
-    restart: always
     ports:
       - 7700:7700
     env_file:
@@ -45,9 +42,24 @@ services:
     networks:
       - academic-tasks-net
 
+  sso:
+    build:
+      context: ./devops/docker/sso/image
+      args:
+        - KEYCLOAK_EXTRA_ARGS=-Dkeycloak.profile.feature.scripts=enabled
+    entrypoint: /opt/keycloak/bin/kc.sh
+    command: start-dev --import-realm
+    container_name: academic-tasks-sso
+    env_file:
+      - .kc.env
+    depends_on:
+      - server-db
+    networks:
+      - academic-tasks-net
 
 networks:
   academic-tasks-net:
+    external: true
 
 volumes:
   academic-tasks-db-data:

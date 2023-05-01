@@ -5,13 +5,13 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ResolveAppContext } from 'src/app/app-context/providers/ResolveAppContext';
+import { AppContext } from 'src/app/app-context/services/AppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
-} from 'src/meilisearch/dtos';
-import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
+} from 'src/app/meilisearch/dtos';
+import { ValidatedArgs } from '../../graphql/ValidatedArgs.decorator';
 import { RoleType } from '../role/role.type';
 import {
   CreateUserInputType,
@@ -22,6 +22,8 @@ import {
   FindUserByIdInputZod,
   UpdateUserInputType,
   UpdateUserInputZod,
+  UpdateUserPasswordInputType,
+  UpdateUserPasswordInputZod,
 } from './dtos';
 import { ListUserResultType } from './dtos/ListUserResult';
 import { UserService } from './user.service';
@@ -79,6 +81,17 @@ export class UserResolver {
     dto: UpdateUserInputType,
   ) {
     return this.userService.updateUser(appContext, dto);
+  }
+
+  @Mutation(() => Boolean)
+  async updateUserPassword(
+    @ResolveAppContext()
+    appContext: AppContext,
+
+    @ValidatedArgs('dto', UpdateUserPasswordInputZod)
+    dto: UpdateUserPasswordInputType,
+  ) {
+    return this.userService.updateUserPassword(appContext, dto);
   }
 
   @Mutation(() => Boolean)

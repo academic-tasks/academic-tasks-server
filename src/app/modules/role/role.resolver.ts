@@ -5,13 +5,13 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AppContext } from 'src/app-context/AppContext';
-import { ResolveAppContext } from 'src/app-context/ResolveAppContext';
+import { ResolveAppContext } from 'src/app/app-context/providers/ResolveAppContext';
+import { AppContext } from 'src/app/app-context/services/AppContext';
 import {
   GenericListInputType,
   GenericListInputZod,
-} from 'src/meilisearch/dtos';
-import { ValidatedArgs } from '../../../graphql/ValidatedArgs.decorator';
+} from 'src/app/meilisearch/dtos';
+import { ValidatedArgs } from '../../graphql/ValidatedArgs.decorator';
 import {
   CreateRoleInputType,
   CreateRoleInputZod,

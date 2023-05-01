@@ -1,6 +1,7 @@
 import type Helmet from 'helmet';
 import inclusion from 'inclusion';
 import type pMap from 'p-map';
+import type KcAdminClient from '@keycloak/keycloak-admin-client';
 
 // START p-map module
 
@@ -19,3 +20,12 @@ export const getHelmet = (): Promise<IHelmet> =>
   inclusion('helmet').then((mod) => mod.default);
 
 // END helmet module
+
+// START @keycloak/keycloak-admin-client module
+
+type IKcAdminClient = typeof KcAdminClient;
+
+export const getKeycloakAdminClient = (): Promise<IKcAdminClient> =>
+  inclusion('@keycloak/keycloak-admin-client').then((mod) => mod.default);
+
+// END @keycloak/keycloak-admin-client module

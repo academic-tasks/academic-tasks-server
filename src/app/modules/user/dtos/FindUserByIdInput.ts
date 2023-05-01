@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IdZod } from 'src/common/zod/IdZod';
+import { IdZod } from 'src/app/zod/IdZod';
 import { z } from 'zod';
 
 export const FindUserByIdInputZod = z.object({

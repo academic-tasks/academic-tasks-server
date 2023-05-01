@@ -1,14 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AppContext } from 'src/app-context/AppContext';
-import { RoleDbEntity } from 'src/database/entities/role.db.entity';
-import { UserHasRoleDbEntity } from 'src/database/entities/user-has-role.db.entity';
-import { UserDbEntity } from 'src/database/entities/user.db.entity';
-import { getRoleRepository } from 'src/database/repositories/role.repository';
-import { getUserHasRoleRepository } from 'src/database/repositories/user-has-role.repository';
-import { getUserRepository } from 'src/database/repositories/user.repository';
+import { AppContext } from 'src/app/app-context/services/AppContext';
+import { RoleDbEntity } from 'src/app/database/entities/role.db.entity';
+import { UserHasRoleDbEntity } from 'src/app/database/entities/user-has-role.db.entity';
+import { UserDbEntity } from 'src/app/database/entities/user.db.entity';
+import { getRoleRepository } from 'src/app/database/repositories/role.repository';
+import { getUserHasRoleRepository } from 'src/app/database/repositories/user-has-role.repository';
+import { getUserRepository } from 'src/app/database/repositories/user.repository';
+import { MeiliSearchService } from 'src/app/meilisearch/meilisearch.service';
 import { FindOneOptions } from 'typeorm';
-
-import { MeiliSearchService } from 'src/meilisearch/meilisearch.service';
 import {
   IAddRoleToUserInput,
   IFindUserHasRoleByIdInput,
