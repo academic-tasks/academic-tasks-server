@@ -1,0 +1,71 @@
+services:
+  endpoint:
+    image: node:18
+    user: node
+    command: sh -c "tail -f /dev/null"
+    container_name: academic-tasks-endpoint
+    # restart: always
+    working_dir: /code
+    depends_on:
+      - endpoint-db
+      - endpoint-meilisearch
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+      - 9229:9229
+    volumes:
+      - .:/code
+    networks:
+      - academic-tasks-net
+
+  endpoint-db:
+    image: bitnami/postgresql:15
+    container_name: academic-tasks-db
+    # restart: always
+    volumes:
+      - 'academic-tasks-db-data:/bitnami/postgresql'
+      - './volumes/db/scripts/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
+    env_file:
+      - .db.env
+    networks:
+      - academic-tasks-net
+    ports:
+      - 5432:5432
+
+  endpoint-meilisearch:
+    image: getmeili/meilisearch:v1.0.2
+    container_name: academic-tasks-meilisearch
+    # restart: always
+    ports:
+      - 7700:7700
+    env_file:
+      - .meilisearch.env
+    volumes:
+      - 'academic-tasks-meilisearch-data:/meili_data'
+    networks:
+      - academic-tasks-net
+
+  sso:
+    build:
+      context: ./devops/docker/sso/image
+      args:
+        - KEYCLOAK_EXTRA_ARGS=-Dkeycloak.profile.feature.scripts=enabled
+    entrypoint: /opt/keycloak/bin/kc.sh
+    command: start-dev --import-realm
+    container_name: academic-tasks-sso
+    env_file:
+      - .kc.env
+    depends_on:
+      - endpoint-db
+    networks:
+      - academic-tasks-net
+    ports:
+      - 8080:8080
+
+networks:
+  academic-tasks-net:
+
+volumes:
+  academic-tasks-db-data:
+  academic-tasks-meilisearch-data:
